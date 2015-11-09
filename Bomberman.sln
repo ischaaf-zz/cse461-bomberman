@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombermanServer", "BombermanServer\BombermanServer.csproj", "{7743304D-D21E-44AB-92DF-D85863FA023C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombermanClient", "BombermanClient\BombermanClient.csproj", "{8993E94B-8AA8-4E0C-BE02-159CAC00B381}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{92FEFFAB-38BF-4197-9157-15503BA21B28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7743304D-D21E-44AB-92DF-D85863FA023C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7743304D-D21E-44AB-92DF-D85863FA023C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7743304D-D21E-44AB-92DF-D85863FA023C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7743304D-D21E-44AB-92DF-D85863FA023C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8993E94B-8AA8-4E0C-BE02-159CAC00B381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8993E94B-8AA8-4E0C-BE02-159CAC00B381}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8993E94B-8AA8-4E0C-BE02-159CAC00B381}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8993E94B-8AA8-4E0C-BE02-159CAC00B381}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
