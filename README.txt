@@ -1,5 +1,5 @@
-setup:
-install monogame with DirectX: PM> Install-Package MonoGame.Framework.WindowsDX
+
+Looks like MonoGame is already included in the project so no need to install it, just clone the Repo
 
 cloning:
 
