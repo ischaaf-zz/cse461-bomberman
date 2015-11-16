@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BombermanServer
 {
     class Program
-    { 
+    {
         static void Main(string[] args)
         {
         }
