@@ -23,5 +23,18 @@ namespace BombermanObjects.Collections
         /// <param name="position">The point to check for</param>
         /// <returns>a <see cref="System.Collections.Generic.List{T}"/> such that all elements in the list overlap the given rectangle</returns>
         List<IGameObject> GetAllInRegion(Rectangle box);
+
+        /// <summary>
+        /// Adds the given item to the Collection
+        /// </summary>
+        /// <param name="obj">the GameObject to add</param>
+        void Add(IGameObject obj);
+
+        /// <summary>
+        /// Removes the given item from the collection
+        /// </summary>
+        /// <param name="obj">the item to remove</param>
+        /// <returns></returns>
+        bool Remove(IGameObject obj);
     }
 }
