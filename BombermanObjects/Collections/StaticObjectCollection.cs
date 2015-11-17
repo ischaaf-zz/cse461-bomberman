@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace BombermanObjects.Collections
 {
-    public class StaticObjectCollection : IObjectCollection
+    public class StaticObjectCollection : GameObjectCollection
     {
         #region Properties
 
@@ -24,6 +24,9 @@ namespace BombermanObjects.Collections
 
         private delegate bool Fn(IGameObject obj, DynamicObjectCollection col);
 
+        private int xWidth;
+        private int yWidth;
+
         #endregion
 
         #region Constructers
@@ -36,10 +39,18 @@ namespace BombermanObjects.Collections
             Height = height;
             XBoxes = xDim;
             YBoxes = yDim;
+
+            xWidth = Width / xDim;
+            yWidth = Height / yDim;
+
             items = new DynamicObjectCollection[xDim][];
             for (int i = 0; i < xDim; i++)
             {
                 items[i] = new DynamicObjectCollection[yDim];
+                for (int j = 0; j < yDim; j++)
+                {
+                    items[i][j] = new DynamicObjectCollection();
+                }
             }
         }
 
@@ -49,26 +60,45 @@ namespace BombermanObjects.Collections
 
         #region Queries
 
-        public List<IGameObject> GetAllAtPoint(Vector2 position)
+        public override void GetAllAtPoint(Vector2 position, ref HashSet<IGameObject> current)
         {
-            throw new NotImplementedException();
+            int x = (int)(position.X / xWidth);
+            int y = (int)(position.Y / yWidth);
+
+            items[x][y].GetAllAtPoint(position, ref current);
         }
 
-        public List<IGameObject> GetAllInRegion(Rectangle box)
+        public override void GetAllInRegion(Rectangle box, ref HashSet<IGameObject> current)
         {
-            throw new NotImplementedException();
+            int xLo = box.Left / xWidth;
+            xLo = xLo >= 0 ? xLo : 0;
+            int xHi = box.Right / xWidth;
+            xHi = xHi < XBoxes ? xHi : (XBoxes - 1);
+            int yLo = box.Top / yWidth;
+            yLo = yLo >= 0 ? yLo : 0;
+            int yHi = box.Bottom / yWidth;
+            yHi = yHi < YBoxes ? yHi : (YBoxes - 1);
+
+            for (int i = xLo; i <= xHi; ++i)
+            {
+                for (int j = yLo; j <= yHi; ++j)
+                {
+                    items[i][j].GetAllInRegion(box, ref current);
+                }
+            }
+
         }
 
         #endregion
 
         #region Mutators
 
-        public void Add(IGameObject obj)
+        public override void Add(IGameObject obj)
         {
             opHelper(obj, insert);
         }
 
-        public bool Remove(IGameObject obj)
+        public override bool Remove(IGameObject obj)
         {
             return opHelper(obj, remove);
         }
@@ -86,8 +116,8 @@ namespace BombermanObjects.Collections
                 throw new ArgumentNullException("obj cannot be null");
             if (rect.Left < 0 || rect.Top < 0 || rect.Right >= Width || rect.Bottom >= Height)
                 throw new ArgumentException("obj must be completely within the bounds of the collection");
-            int startX = rect.Left / XBoxes;
-            int startY = rect.Top / YBoxes;
+            int startX = rect.Left / xWidth;
+            int startY = rect.Top / yWidth;
             bool success = true;
             while (startX * (Width / XBoxes) < rect.Right)
             {

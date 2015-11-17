@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace BombermanObjects.Collections
 {
-    public class DynamicObjectCollection : IObjectCollection
+    public class DynamicObjectCollection : GameObjectCollection
     {
         #region Members
 
@@ -28,38 +28,34 @@ namespace BombermanObjects.Collections
 
         #region Queries
 
-        public List<IGameObject> GetAllAtPoint(Vector2 position)
+        public override void GetAllAtPoint(Vector2 position, ref HashSet<IGameObject> ret)
         {
-            List<IGameObject> ret = new List<IGameObject>();
             foreach (var item in items)
             {
                 if (item.Position.Contains(position))
                     ret.Add(item);
             }
-            return ret;
         }
 
-        public List<IGameObject> GetAllInRegion(Rectangle box)
+        public override void GetAllInRegion(Rectangle box, ref HashSet<IGameObject> ret)
         {
-            List<IGameObject> ret = new List<IGameObject>();
             foreach (var item in items)
             {
                 if (item.Position.Intersects(box))
                     ret.Add(item);
             }
-            return ret;
         }
 
         #endregion
 
         #region Mutators
 
-        public void Add(IGameObject obj)
+        public override void Add(IGameObject obj)
         {
             items.Add(obj);
         }
 
-        public bool Remove(IGameObject obj)
+        public override bool Remove(IGameObject obj)
         {
             return items.Remove(obj);
         }
