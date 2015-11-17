@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BombermanObjects
 {
@@ -12,6 +8,6 @@ namespace BombermanObjects
     {
         Rectangle Position { get; set; }
 
-        
+        void Draw(SpriteBatch spritebatch);
     }
 }
