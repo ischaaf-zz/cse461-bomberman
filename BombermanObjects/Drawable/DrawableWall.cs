@@ -22,7 +22,7 @@ namespace BombermanObjects.Drawable
 
         public void Draw(SpriteBatch spritebatch)
         {
-            spritebatch.Draw(texture, position, textureRect, Color.Transparent);
+            spritebatch.Draw(texture, position, textureRect, Color.White);
         }
     }
 }

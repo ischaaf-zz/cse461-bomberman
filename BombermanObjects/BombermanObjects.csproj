@@ -47,6 +47,7 @@
     <Compile Include="Collision\Collider.cs" />
     <Compile Include="Collision\ICollider.cs" />
     <Compile Include="GameManager.cs" />
+    <Compile Include="GraphicalGameManager.cs" />
     <Compile Include="Logical\Bomb.cs" />
     <Compile Include="Logical\Box.cs" />
     <Compile Include="Collections\DynamicObjectCollection.cs" />

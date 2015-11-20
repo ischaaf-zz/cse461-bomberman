@@ -10,6 +10,8 @@ namespace BombermanClient
     {
         static void Main(string[] args)
         {
+            BombermanGame game = new BombermanGame();
+            game.Run();
         }
     }
 }
