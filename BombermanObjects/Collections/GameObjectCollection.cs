@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BombermanObjects.Logical;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;

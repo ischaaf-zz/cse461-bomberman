@@ -44,15 +44,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collision\Collider.cs" />
+    <Compile Include="Collision\ICollider.cs" />
+    <Compile Include="GameManager.cs" />
+    <Compile Include="Logical\Bomb.cs" />
+    <Compile Include="Logical\Box.cs" />
     <Compile Include="Collections\DynamicObjectCollection.cs" />
     <Compile Include="Collections\GameObjectCollection.cs" />
     <Compile Include="Collections\StaticObjectCollection.cs" />
-    <Compile Include="IGameObject.cs" />
+    <Compile Include="Drawable\DrawableWall.cs" />
+    <Compile Include="Drawable\IDrawable.cs" />
+    <Compile Include="Logical\IGameObject.cs" />
+    <Compile Include="Logical\Player.cs" />
+    <Compile Include="Logical\PowerUp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Logical\Wall.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
