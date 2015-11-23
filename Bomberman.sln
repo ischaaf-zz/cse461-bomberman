@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B0643189
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombermanTests", "BombermanTests\BombermanTests.csproj", "{CE24BED0-51A0-4660-A6CA-64CF2B91836D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombermanEvents", "BombermanEvents\BombermanEvents.csproj", "{FDD775FB-D558-4D75-B1D0-78A593DEE128}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{CE24BED0-51A0-4660-A6CA-64CF2B91836D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE24BED0-51A0-4660-A6CA-64CF2B91836D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE24BED0-51A0-4660-A6CA-64CF2B91836D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD775FB-D558-4D75-B1D0-78A593DEE128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD775FB-D558-4D75-B1D0-78A593DEE128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD775FB-D558-4D75-B1D0-78A593DEE128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD775FB-D558-4D75-B1D0-78A593DEE128}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +56,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{77C19255-23E8-4224-9AE7-A4BBCD38CD90} = {92FEFFAB-38BF-4197-9157-15503BA21B28}
 		{CE24BED0-51A0-4660-A6CA-64CF2B91836D} = {B0643189-FCFB-40F0-BCBE-E1B100676B5F}
+		{FDD775FB-D558-4D75-B1D0-78A593DEE128} = {92FEFFAB-38BF-4197-9157-15503BA21B28}
 	EndGlobalSection
 EndGlobal
