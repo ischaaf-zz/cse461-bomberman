@@ -13,17 +13,17 @@ namespace BombermanTests
     {
         static void Main(string[] args)
         {
-            Collider c = new Collider(100, 100, 10);
+            Collider c = new Collider(832, 832, 64);
 
-            c.RegisterStatic(new TestGameObject(new Rectangle(40, 40, 20, 20), "Block"));
-            TestGameObject player = new TestGameObject(new Rectangle(45, 70, 10, 10), "Player");
+            c.RegisterStatic(new TestGameObject(new Rectangle(0, 64, 64, 64), "Block"));
+            TestGameObject player = new TestGameObject(new Rectangle(66, 64, 64, 64), "Player");
 
             
-            int shortMove = c.Collide(player, new Vector2(0, -5));
+            int shortMove = c.Collide(player, new Vector2(5, 0));
             Console.WriteLine($"Short Move (5 expected): {shortMove}");
 
-            int blockedMove = c.Collide(player, new Vector2(0, -50));
-            Console.WriteLine($"Blocked Move (20 expected): {blockedMove}");
+            int blockedMove = c.Collide(player, new Vector2(-5, 0));
+            Console.WriteLine($"Blocked Move (0 expected): {blockedMove}");
 
             Console.Read();
         }

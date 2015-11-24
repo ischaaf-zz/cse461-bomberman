@@ -66,6 +66,9 @@
     <Content Include="Content\background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\player.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\wall.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

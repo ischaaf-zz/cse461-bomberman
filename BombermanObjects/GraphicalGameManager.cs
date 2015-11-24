@@ -22,8 +22,13 @@ namespace BombermanObjects
 
         public override void Initialize()
         {
+            for (int i = 0; i < players.Length; i++)
+            {
+                players[i] = new DrawablePlayer(STARTS[i], textures["player"]);
+                players[i].Manager = this;
+            }
             IGameObject background = new DrawableWall(textures["background"], new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE), null);
-            statics.Add(background);
+            //statics.Add(background);
 
             for (int i = 0; i < GAME_SIZE; i++)
             {

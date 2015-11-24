@@ -47,7 +47,6 @@
     <Compile Include="EventType.cs" />
     <Compile Include="GameEvent.cs" />
     <Compile Include="IEventSource.cs" />
-    <Compile Include="LocalEventSource.cs" />
     <Compile Include="MoveEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

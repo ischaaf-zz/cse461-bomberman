@@ -40,7 +40,8 @@ namespace BombermanClient
             Dictionary<string, Texture2D> textureMap = new Dictionary<string, Texture2D>();
             textureMap["background"] = Content.Load<Texture2D>("background");
             textureMap["wall"] = Content.Load<Texture2D>("wall");
-            manager = new GraphicalGameManager(0, textureMap);
+            textureMap["player"] = Content.Load<Texture2D>("player");
+            manager = new GraphicalGameManager(1, textureMap);
             manager.Initialize();
         }
 
@@ -50,6 +51,7 @@ namespace BombermanClient
                 Exit();
 
             // TODO Update game logic
+            manager.Update(gameTime);
 
             base.Update(gameTime);
         }

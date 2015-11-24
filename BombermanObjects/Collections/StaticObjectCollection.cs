@@ -71,14 +71,14 @@ namespace BombermanObjects.Collections
 
         public override void GetAllInRegion(Rectangle box, ref HashSet<IGameObject> current)
         {
-            int xLo = box.Left / xWidth;
+            int xLo = box.Left / XBoxes;
             xLo = xLo >= 0 ? xLo : 0;
-            int xHi = box.Right / xWidth;
-            xHi = xHi < XBoxes ? xHi : (XBoxes - 1);
-            int yLo = box.Top / yWidth;
+            int xHi = box.Right / XBoxes;
+            xHi = xHi < xWidth ? xHi : (xWidth - 1);
+            int yLo = box.Top / YBoxes;
             yLo = yLo >= 0 ? yLo : 0;
-            int yHi = box.Bottom / yWidth;
-            yHi = yHi < YBoxes ? yHi : (YBoxes - 1);
+            int yHi = box.Bottom / YBoxes;
+            yHi = yHi < yWidth ? yHi : (yWidth - 1);
 
             for (int i = xLo; i <= xHi; ++i)
             {
@@ -117,12 +117,12 @@ namespace BombermanObjects.Collections
                 throw new ArgumentNullException("obj cannot be null");
             if (rect.Left < 0 || rect.Top < 0 || rect.Right > Width || rect.Bottom > Height)
                 throw new ArgumentException("obj must be completely within the bounds of the collection");
-            int startX = rect.Left / xWidth;
-            int startY = rect.Top / yWidth;
+            int startX = rect.Left / XBoxes;
+            int startY = rect.Top / YBoxes;
             bool success = true;
-            while (startX * (Width / XBoxes) < rect.Right)
+            while (startX * XBoxes < rect.Right)
             {
-                while (startY * (Height / YBoxes) < rect.Bottom)
+                while (startY * YBoxes < rect.Bottom)
                 {
                     success &= op(obj, items[startX][startY]);
                     ++startY;
