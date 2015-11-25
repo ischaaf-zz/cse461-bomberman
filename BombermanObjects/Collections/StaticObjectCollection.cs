@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using BombermanObjects.Logical;
 
 namespace BombermanObjects.Collections
 {
@@ -114,7 +115,7 @@ namespace BombermanObjects.Collections
             var rect = obj.Position;
             if (rect == null)
                 throw new ArgumentNullException("obj cannot be null");
-            if (rect.Left < 0 || rect.Top < 0 || rect.Right >= Width || rect.Bottom >= Height)
+            if (rect.Left < 0 || rect.Top < 0 || rect.Right > Width || rect.Bottom > Height)
                 throw new ArgumentException("obj must be completely within the bounds of the collection");
             int startX = rect.Left / xWidth;
             int startY = rect.Top / yWidth;

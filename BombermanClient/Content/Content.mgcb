@@ -13,3 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin background.png
+/importer:
+/processor:
+/build:background.png
+
+#begin wall.png
+/importer:
+/processor:
+/build:wall.png
+
