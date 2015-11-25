@@ -8,13 +8,14 @@ namespace BombermanEvents
 {
     public class MoveEvent : GameEvent
     {
-        public int Player { get; }
         public Direction Direction { get; }
+        public int Player { get; }
 
         public MoveEvent(int player, Direction direction)
         {
-            Player = player;
             Direction = direction;
+            Player = player;
+            Type = EventType.Move;
         }
     }
 

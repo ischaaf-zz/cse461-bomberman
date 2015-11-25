@@ -22,6 +22,7 @@ namespace BombermanEvents
         }
 
         public void Start()
+
         {
             runner.Start();
         }
@@ -32,6 +33,11 @@ namespace BombermanEvents
         }
 
         private void T_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Send(GameEvent gEvent, int id)
         {
             throw new NotImplementedException();
         }
