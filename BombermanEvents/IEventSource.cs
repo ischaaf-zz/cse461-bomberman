@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace BombermanEvents
 {
-    public interface IEventSource
+    public abstract class IEventSource
     {
         bool HasEvent { get; }
 
         GameEvent Next { get; }
+
+        public abstract void Send(GameEvent gEvent, int id);
+
     }
 }

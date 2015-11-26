@@ -8,6 +8,6 @@ namespace BombermanEvents
 {
     public abstract class GameEvent
     {
-        public EventType Type { get; }
+        public EventType Type { get; set; }
     }
 }

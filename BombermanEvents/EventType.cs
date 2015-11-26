@@ -8,6 +8,6 @@ namespace BombermanEvents
 {
     public enum EventType
     {
-        Move, BombPlace, Stop, BombDet, BombMove, PlayerDie, PowerUp
+        Move, BombPlace, Stop, BombDet, BombMove, PlayerDie, PowerUp, Update
     }
 }
