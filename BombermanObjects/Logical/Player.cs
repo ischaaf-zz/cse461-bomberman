@@ -36,6 +36,8 @@ namespace BombermanObjects.Logical
 
         public bool CanKick { get; private set; }
 
+        public Direction MoveDirection { get; private set; }
+
 
         private Rectangle position;
 
@@ -76,6 +78,7 @@ namespace BombermanObjects.Logical
             {
                 move(first, Speed - moved);
             }
+            MoveDirection = first;
         }
 
         private int move(Direction dir, int dist)

@@ -60,7 +60,7 @@ namespace BombermanClient
         {
             // TODO Update graphics
             spritebatch.Begin();
-            manager.Draw(spritebatch);
+            manager.Draw(spritebatch, gameTime);
             spritebatch.End();
 
             base.Draw(gameTime);

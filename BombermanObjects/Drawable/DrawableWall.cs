@@ -20,7 +20,7 @@ namespace BombermanObjects.Drawable
             this.textureRect = (textureRect.HasValue) ? textureRect.Value : new Rectangle(0, 0, position.Width, position.Height);
         }
 
-        public void Draw(SpriteBatch spritebatch)
+        public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
             spritebatch.Draw(texture, position, textureRect, Color.White);
         }

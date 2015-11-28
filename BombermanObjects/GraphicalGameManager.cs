@@ -44,21 +44,21 @@ namespace BombermanObjects
             }
         }
 
-        public void Draw(SpriteBatch spritebatch)
+        public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
             var backgrounds = statics.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
             foreach (var item in backgrounds)
             {
-                (item as Drawable.IDrawable).Draw(spritebatch);
+                (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
             var bombs = dynamics.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
             foreach (var item in bombs)
             {
-                (item as Drawable.IDrawable).Draw(spritebatch);
+                (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
             foreach (var p in players)
             {
-                (p as Drawable.IDrawable).Draw(spritebatch);
+                (p as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
         }
     }
