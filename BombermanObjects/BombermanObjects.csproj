@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\GridObjectCollection.cs" />
     <Compile Include="Collision\Collider.cs" />
     <Compile Include="Collision\ICollider.cs" />
     <Compile Include="Drawable\DrawablePlayer.cs" />

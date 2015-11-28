@@ -31,7 +31,7 @@ namespace BombermanObjects
         public GameManager(int players)
         {
             int dim = GAME_SIZE * BOX_WIDTH;
-            collider = new Collider(dim, dim, BOX_WIDTH);
+            collider = new Collider(GAME_SIZE, GAME_SIZE, BOX_WIDTH);
             statics = new StaticObjectCollection(dim, dim, BOX_WIDTH);
             dynamics = new DynamicObjectCollection();
             this.players = new Player[players];

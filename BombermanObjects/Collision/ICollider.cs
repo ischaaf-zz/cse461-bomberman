@@ -25,6 +25,6 @@ namespace BombermanObjects.Collision
         /// <param name="obj">the object to collide</param>
         /// <param name="maxMove">the max x or y movement to be made</param>
         /// <returns>the max distance the object can move bounded by maxMove</returns>
-        int Collide(IGameObject obj, Vector2 maxMove);
+        Point Move(IGameObject obj, Point maxMove);
     }
 }

@@ -13,15 +13,15 @@ namespace BombermanObjects.Logical
     {
         public enum Direction
         {
-            North, South, East, West
+            North, South, East, West, Center
         }
 
         public static readonly Dictionary<Keys, Direction> BINDINGS = new Dictionary<Keys, Direction>()
         {
-            {Keys.W, Direction.North },
-            {Keys.D, Direction.East },
-            {Keys.A, Direction.West },
-            {Keys.S, Direction.South }
+            {Keys.Up, Direction.North },
+            {Keys.Right, Direction.East },
+            {Keys.Left, Direction.West },
+            {Keys.Down, Direction.South }
         };
 
         public GameManager Manager { get; set; }
@@ -59,55 +59,62 @@ namespace BombermanObjects.Logical
 
         public void Update(GameTime gametime, LinkedList<Keys> keys)
         {
+            int moved = 0;
+            Direction first = Direction.Center;
             foreach (var key in keys)
             {
                 if (BINDINGS.ContainsKey(key))
                 {
-                    Vector2 move = new Vector2();
-                    int res;
-                    bool moved = false;
-                    switch (BINDINGS[key]) {
-                        case Direction.North:
-                            move.Y = -Speed;
-                            res = Manager.collider.Collide(this, move);
-                            if (res != 0)
-                            {
-                                moved = true;
-                                position.Y += res;
-                            }
-                            break;
-                        case Direction.South:
-                            move.Y = Speed;
-                            res = Manager.collider.Collide(this, move);
-                            if (res != 0)
-                            {
-                                moved = true;
-                                position.Y += res;
-                            }
-                            break;
-                        case Direction.West:
-                            move.X = -Speed;
-                            res = Manager.collider.Collide(this, move);
-                            if (res != 0)
-                            {
-                                moved = true;
-                                position.X += res;
-                            }
-                            break;
-                        case Direction.East:
-                            move.X = Speed;
-                            res = Manager.collider.Collide(this, move);
-                            if (res != 0)
-                            {
-                                moved = true;
-                                position.X += res;
-                            }
-                            break;
-                    }
-                    if (moved)
-                        break;
+                    moved += move(BINDINGS[key], Speed);
+                    if (first == Direction.Center)
+                        first = BINDINGS[key];
                 }
+                if (moved >= Speed)
+                    break;
             }
+            if (moved < Speed)
+            {
+                move(first, Speed - moved);
+            }
+        }
+
+        private int move(Direction dir, int dist)
+        {
+            int moved = 0;
+            Point move = new Point();
+            Point res = new Point();
+            switch (dir)
+            {
+                case Direction.North:
+                    move.Y = -dist;
+                    move.X = 0;
+                    res = Manager.collider.Move(this, move);
+                    moved += Math.Abs(res.Y);
+                    position.Y += res.Y;
+                    break;
+                case Direction.South:
+                    move.Y = dist;
+                    move.X = 0;
+                    res = Manager.collider.Move(this, move);
+                    moved += Math.Abs(res.Y);
+                    position.Y += res.Y;
+                    break;
+                case Direction.West:
+                    move.Y = 0;
+                    move.X = -dist;
+                    res = Manager.collider.Move(this, move);
+                    moved += Math.Abs(res.X);
+                    position.X += res.X;
+                    break;
+                case Direction.East:
+                    move.Y = 0;
+                    move.X = dist;
+                    res = Manager.collider.Move(this, move);
+                    moved += Math.Abs(res.X);
+                    position.X += res.X;
+                    break;
+            }
+            return moved;
         }
     }
 }
