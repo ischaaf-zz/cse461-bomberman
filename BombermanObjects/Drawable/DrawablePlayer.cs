@@ -38,7 +38,7 @@ namespace BombermanObjects.Drawable
             {
                 if (MoveDirection == lastDirection)
                 {
-                    if (lastTime.Milliseconds > 50)
+                    if (lastTime.Milliseconds > 75)
                     {
                         spriteIndex = (spriteIndex + 1) % 6;
                         lastTime = new TimeSpan();
@@ -46,6 +46,7 @@ namespace BombermanObjects.Drawable
                     lastTime = lastTime.Add(gameTime.ElapsedGameTime);
                 } else
                 {
+                    
                     spriteIndex = 0;
                     lastTime = new TimeSpan();
                 }
@@ -69,6 +70,27 @@ namespace BombermanObjects.Drawable
             Rectangle textureRect = new Rectangle(m.X * 80 + 8, m.Y * 80 + 8, 64, 64);
 
             spritebatch.Draw(texture, Position, textureRect, Color.White);
+        }
+
+        protected override void placeBomb(GameTime gameTime)
+        {
+            int x = position.Center.X / position.Width;
+            int y = position.Center.Y / position.Height;
+            if (PlacedBombs < MaxBombs && Manager.bombs.GetAllAtPoint(new Vector2(position.Center.X, position.Center.Y)).Count == 0)
+            {
+                DrawableBomb b = new DrawableBomb(
+                    x,
+                    y,
+                    gameTime.TotalGameTime,
+                    3,
+                    this,
+                    position.Width,
+                    (Manager as GraphicalGameManager).textures["bomb"]
+                );
+                Manager.collider.RegisterStatic(b);
+                Manager.bombs.Add(b);
+                PlacedBombs++; 
+            }
         }
     }
 }

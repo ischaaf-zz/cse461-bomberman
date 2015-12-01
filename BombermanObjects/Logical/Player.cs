@@ -16,37 +16,33 @@ namespace BombermanObjects.Logical
             North, South, East, West, Center
         }
 
-        public static readonly Dictionary<Keys, Direction> BINDINGS = new Dictionary<Keys, Direction>()
-        {
-            {Keys.Up, Direction.North },
-            {Keys.Right, Direction.East },
-            {Keys.Left, Direction.West },
-            {Keys.Down, Direction.South }
-        };
-
         public GameManager Manager { get; set; }
 
-        public int Speed { get; private set; }
+        public int Speed { get; set; }
 
-        public int Lives { get; private set; }
+        public int Lives { get; set; }
 
-        public int MaxBombs { get; private set; }
+        public int MaxBombs { get; set; }
 
-        public int PlacedBombs { get; private set; }
+        public int PlacedBombs { get; set; }
 
-        public bool CanKick { get; private set; }
+        public int BombPower { get; set; }
 
-        public Direction MoveDirection { get; private set; }
+        public bool CanKick { get; set; }
+
+        public Direction MoveDirection { get; set; }
 
 
-        private Rectangle position;
+        protected Rectangle position;
 
         public Player(Rectangle pos)
         {
             position = pos;
-            Speed = 5;
+            // start: 3, end: 7_
+            Speed = 3;
             Lives = 2;
             MaxBombs = 1;
+            BombPower = 2;
             PlacedBombs = 0;
             CanKick = false;
         }
@@ -59,65 +55,71 @@ namespace BombermanObjects.Logical
             }
         }
 
-        public void Update(GameTime gametime, LinkedList<Keys> keys)
+        public void Update(GameTime gametime, PlayerInput input)
         {
-            int moved = 0;
-            Direction first = Direction.Center;
-            foreach (var key in keys)
+            bool moved = false;
+            foreach (var dir in input.Move)
             {
-                if (BINDINGS.ContainsKey(key))
-                {
-                    moved += move(BINDINGS[key], Speed);
-                    if (first == Direction.Center)
-                        first = BINDINGS[key];
-                }
-                if (moved >= Speed)
+                moved = move(dir, Speed);
+                if (moved)
                     break;
             }
-            if (moved < Speed)
+            if (!moved)
+                MoveDirection = Direction.Center;
+            if (input.PlaceBomb)
             {
-                move(first, Speed - moved);
+                placeBomb(gametime);
             }
-            MoveDirection = first;
         }
 
-        private int move(Direction dir, int dist)
+        private bool move(Direction dir, int dist)
         {
-            int moved = 0;
-            Point move = new Point();
-            Point res = new Point();
-            switch (dir)
+            bool moved = false;
+            Movement m = new Movement(dist, dir);
+            var res = Manager.collider.Move(this, m);
+            foreach (var move in res)
             {
-                case Direction.North:
-                    move.Y = -dist;
-                    move.X = 0;
-                    res = Manager.collider.Move(this, move);
-                    moved += Math.Abs(res.Y);
-                    position.Y += res.Y;
-                    break;
-                case Direction.South:
-                    move.Y = dist;
-                    move.X = 0;
-                    res = Manager.collider.Move(this, move);
-                    moved += Math.Abs(res.Y);
-                    position.Y += res.Y;
-                    break;
-                case Direction.West:
-                    move.Y = 0;
-                    move.X = -dist;
-                    res = Manager.collider.Move(this, move);
-                    moved += Math.Abs(res.X);
-                    position.X += res.X;
-                    break;
-                case Direction.East:
-                    move.Y = 0;
-                    move.X = dist;
-                    res = Manager.collider.Move(this, move);
-                    moved += Math.Abs(res.X);
-                    position.X += res.X;
-                    break;
+                switch (move.Direction)
+                {
+                    case Direction.North:
+                        position.Y -= move.Move;
+                        break;
+                    case Direction.South:
+                        position.Y += move.Move;
+                        break;
+                    case Direction.East:
+                        position.X += move.Move;
+                        break;
+                    case Direction.West:
+                        position.X -= move.Move;
+                        break;
+                }
+                moved = true;
+                MoveDirection = move.Direction;
             }
+            if (!moved)
+                MoveDirection = Direction.Center;
             return moved;
+        }
+
+        protected virtual void placeBomb(GameTime gameTime)
+        {
+            int x = position.Center.X / position.Width;
+            int y = position.Center.Y / position.Height;
+            if (PlacedBombs < MaxBombs && Manager.bombs.GetAllAtPoint(new Vector2(position.Center.X, position.Center.Y)).Count == 0)
+            {
+                Bomb b = new Bomb(
+                    x,
+                    y,
+                    gameTime.TotalGameTime,
+                    3,
+                    this,
+                    position.Width
+                );
+                Manager.collider.RegisterStatic(b);
+                Manager.bombs.Add(b);
+                PlacedBombs++;
+            }
         }
     }
 }

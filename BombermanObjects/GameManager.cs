@@ -22,8 +22,8 @@ namespace BombermanObjects
         };
 
         public ICollider collider;
-        protected GameObjectCollection statics;
-        protected GameObjectCollection dynamics;
+        public GameObjectCollection statics;
+        public GameObjectCollection bombs;
         protected Player[] players;
         protected LocalInput input;
 
@@ -33,7 +33,7 @@ namespace BombermanObjects
             int dim = GAME_SIZE * BOX_WIDTH;
             collider = new Collider(GAME_SIZE, GAME_SIZE, BOX_WIDTH);
             statics = new StaticObjectCollection(dim, dim, BOX_WIDTH);
-            dynamics = new DynamicObjectCollection();
+            bombs = new DynamicObjectCollection();
             this.players = new Player[players];
             input = new LocalInput();
         }
@@ -68,7 +68,22 @@ namespace BombermanObjects
 
             foreach (var p in players)
             {
-                p.Update(gametime, input.Keys);
+                p.Update(gametime, input.CurrentInput);
+            }
+            foreach (var b in bombs.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE*BOX_WIDTH, GAME_SIZE*BOX_WIDTH)))
+            {
+                UpdateBomb(gametime, b as Bomb);
+            }
+            
+        }
+
+        public virtual void UpdateBomb(GameTime gametime, Bomb b)
+        {
+            if (gametime.TotalGameTime >= b.DetonateTime)
+            {
+                bombs.Remove(b);
+                collider.UnRegisterStatic(b);
+                b.placedBy.PlacedBombs--;
             }
         }
     }

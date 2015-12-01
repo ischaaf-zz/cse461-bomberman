@@ -21,85 +21,128 @@ namespace BombermanObjects.Collision
             dynamics = new DynamicObjectCollection();
         }
 
-        public Point Move(IGameObject obj, Point maxMove)
+        Movement[] ICollider.Move(IGameObject obj, Movement maxMove)
         {
-            int xMove = maxMove.X;
-            int yMove = maxMove.Y;
+
             var rect = obj.Position;
+            int remaining = maxMove.Move;
+            int m1 = 0;
+            int m2 = 0;
+            Player.Direction d1 = Player.Direction.Center;
+            Player.Direction d2 = Player.Direction.Center;
+            bool canMove = false;
+            int top = rect.Top % statics.Dimension;
 
-            int xdistToBound;
-            int ydistToBound;
+            int bot = (rect.Center.Y / statics.Dimension + 1) * statics.Dimension - rect.Bottom;
+            if (bot < 0)
+                bot += statics.Dimension;
 
-            if (yMove != 0)
+            int left = rect.Left % statics.Dimension;
+
+            int right = (rect.Center.X / statics.Dimension + 1) * statics.Dimension - rect.Right;
+            if (right < 0)
+                right += statics.Dimension;
+
+            switch (maxMove.Direction)
             {
-                if (yMove < 0)
-                {
-                    maxNegativeY(rect, ref yMove, out ydistToBound);
-                    if (ydistToBound < 0 && ydistToBound > yMove)
-                        yMove = ydistToBound;
-                }
-                else
-                {
-                    maxPositiveY(rect, ref yMove, out ydistToBound);
-                    if (ydistToBound > 0 && ydistToBound < yMove)
-                        yMove = ydistToBound;
-                }
-            } else
-            {
-                ydistToBound = 0;
+                case Player.Direction.North:
+                    d1 = Player.Direction.North;
+                    d2 = Player.Direction.North;
+                    canMove = !statics.IsItemAtPoint(new Point(rect.Center.X, rect.Top - maxMove.Move));
+                    if (canMove)
+                    { 
+                        if (left < right)
+                        {
+                            m1 = Math.Min(remaining, left);
+                            d1 = Player.Direction.West;
+                        } else
+                        {
+                            m1 = Math.Min(remaining, right);
+                            d1 = Player.Direction.East;
+                        }
+                    } else
+                    {
+                        m1 = top;
+                        d2 = Player.Direction.Center;
+                    }
+                    break;
+                case Player.Direction.South:
+                    d1 = Player.Direction.South;
+                    d2 = Player.Direction.South;
+                    canMove = !statics.IsItemAtPoint(new Point(rect.Center.X, rect.Bottom + maxMove.Move));
+                    if (canMove)
+                    {
+                        if (left < right)
+                        {
+                            m1 = Math.Min(remaining, left);
+                            d1 = Player.Direction.West;
+                        }
+                        else
+                        {
+                            m1 = Math.Min(remaining, right);
+                            d1 = Player.Direction.East;
+                        }
+                    }
+                    else
+                    {
+                        m1 = bot;
+                        d2 = Player.Direction.Center;
+                    }
+                    break;
+                case Player.Direction.East:
+                    d1 = Player.Direction.East;
+                    d2 = Player.Direction.East;
+                    canMove = !statics.IsItemAtPoint(new Point(rect.Right + maxMove.Move, rect.Center.Y));
+                    if (canMove)
+                    {
+                        if (top < bot)
+                        {
+                            m1 = Math.Min(remaining, top);
+                            d1 = Player.Direction.North;
+                        }
+                        else
+                        {
+                            m1 = Math.Min(remaining, bot);
+                            d1 = Player.Direction.South;
+                        }
+                    }
+                    else
+                    {
+                        m1 = right;
+                        d2 = Player.Direction.Center;
+                    }
+                    break;
+                case Player.Direction.West:
+                    d1 = Player.Direction.West;
+                    d2 = Player.Direction.West;
+                    canMove = !statics.IsItemAtPoint(new Point(rect.Left - maxMove.Move, rect.Center.Y));
+                    if (canMove)
+                    {
+                        if (top < bot)
+                        {
+                            m1 = Math.Min(remaining, top);
+                            d1 = Player.Direction.North;
+                        }
+                        else
+                        {
+                            m1 = Math.Min(remaining, bot);
+                            d1 = Player.Direction.South;
+                        }
+                    }
+                    else
+                    {
+                        m1 = left;
+                        d2 = Player.Direction.Center;
+                    }
+                    break;
             }
-            if (xMove != 0)
-            {
-                if (xMove < 0)
-                {
-                    maxNegativeX(rect, ref xMove, out xdistToBound);
-                    if (xdistToBound < 0 && xdistToBound > xMove)
-                        xMove = xdistToBound;
-                }
-                else
-                {
-                    maxPositiveX(rect, ref xMove, out xdistToBound);
-                    if (xdistToBound > 0 && xdistToBound < xMove)
-                        xMove = xdistToBound;
-                }
-            }
+            m2 = remaining - m1;
+            if (m1 == 0 && d2 == Player.Direction.Center)
+                return new Movement[0];
+            else if (m2 == 0)
+                return new Movement[1] { new Movement(m1, d1) };
             else
-            {
-                xdistToBound = 0;
-            }
-            return new Point(xMove, yMove);
-        }
-
-        private void maxPositiveX(Rectangle rect, ref int max, out int distToBound)
-        {
-            distToBound = (rect.Center.X / statics.Dimension + 1) * statics.Dimension - rect.Right;
-            bool ly = statics.IsItemAtPoint(new Point(rect.Right + max, rect.Top));
-            bool ry = statics.IsItemAtPoint(new Point(rect.Right + max, rect.Bottom - 1));
-            max = (ly || ry) ? distToBound : max;
-        }
-
-        private void maxNegativeX(Rectangle rect, ref int max, out int distToBound)
-        {
-            distToBound = -(rect.Left % statics.Dimension);
-            bool ly = statics.IsItemAtPoint(new Point(rect.Left + max, rect.Top));
-            bool ry = statics.IsItemAtPoint(new Point(rect.Left + max, rect.Bottom - 1));
-            max = (ly || ry) ? distToBound : max;
-        }
-
-        private void maxPositiveY(Rectangle rect, ref int max, out int distToBound)
-        {
-            distToBound = (rect.Center.Y / statics.Dimension + 1) * statics.Dimension - rect.Bottom;
-            bool lx = statics.IsItemAtPoint(new Point(rect.Left, rect.Bottom + max));
-            bool rx = statics.IsItemAtPoint(new Point(rect.Right - 1, rect.Bottom + max));
-            max = (lx || rx) ? distToBound : max;
-        }
-
-        private void maxNegativeY(Rectangle rect, ref int max, out int distToBound)
-        {
-            distToBound = -(rect.Top % statics.Dimension);
-            bool lx = statics.IsItemAtPoint(new Point(rect.Left, rect.Top + max));
-            bool rx = statics.IsItemAtPoint(new Point(rect.Right - 1, rect.Top + max));
-            max = (lx || rx) ? distToBound : max;
+                return new Movement[2] { new Movement(m1, d1), new Movement(m2, d2) };
         }
 
         public bool RegisterDynamic(IGameObject obj)

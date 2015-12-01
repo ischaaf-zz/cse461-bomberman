@@ -41,6 +41,8 @@ namespace BombermanClient
             textureMap["background"] = Content.Load<Texture2D>("background");
             textureMap["wall"] = Content.Load<Texture2D>("wall");
             textureMap["player"] = Content.Load<Texture2D>("player");
+            textureMap["bomb"] = Content.Load<Texture2D>("bomb");
+            textureMap["explosion"] = Content.Load<Texture2D>("explosion");
             manager = new GraphicalGameManager(1, textureMap);
             manager.Initialize();
         }

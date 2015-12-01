@@ -13,7 +13,7 @@ namespace BombermanObjects
     public class GraphicalGameManager : GameManager
     {
 
-        protected Dictionary<string, Texture2D> textures;
+        public Dictionary<string, Texture2D> textures;
 
         public GraphicalGameManager(int players, Dictionary<string, Texture2D> textureMappings) : base(players)
         {
@@ -51,7 +51,7 @@ namespace BombermanObjects
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
-            var bombs = dynamics.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
+            var bombs = base.bombs.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
             foreach (var item in bombs)
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
@@ -60,6 +60,11 @@ namespace BombermanObjects
             {
                 (p as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
+        }
+
+        public override void UpdateBomb(GameTime gametime, Bomb b)
+        {
+            base.UpdateBomb(gametime, b);
         }
     }
 }
