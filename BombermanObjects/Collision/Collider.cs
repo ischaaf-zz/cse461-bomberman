@@ -14,11 +14,17 @@ namespace BombermanObjects.Collision
 
         private GridObjectCollection statics;
         private GameObjectCollection dynamics;
+        private int dim;
+        private int width;
+        private int height;
 
         public Collider(int width, int height, int box_size)
         {
             statics = new GridObjectCollection(box_size, width, height);
             dynamics = new DynamicObjectCollection();
+            dim = box_size;
+            this.width = width;
+            this.height = height;
         }
 
         Movement[] ICollider.Move(IGameObject obj, Movement maxMove)
@@ -143,6 +149,49 @@ namespace BombermanObjects.Collision
                 return new Movement[1] { new Movement(m1, d1) };
             else
                 return new Movement[2] { new Movement(m1, d1), new Movement(m2, d2) };
+        }
+
+        List<IGameObject> ICollider.MaxFill(Point start, int power)
+        {
+            List<IGameObject> res = new List<IGameObject>(4);
+            res.Add(null); res.Add(null); res.Add(null); res.Add(null);
+            for (int i = start.X; i >= Math.Max(start.X - power, 0); i--)
+            {
+                var p = new Point(i * dim, start.Y * dim);
+                if (statics.IsItemAtPoint(p))
+                {
+                    var end = statics.GetAllAtPoint(new Vector2(i * dim, start.Y * dim));
+                    res[0] = end.First();
+                }
+            }
+            for (int i = start.X; i <= Math.Min(start.X + power, width - 1); i++)
+            {
+                var p = new Point(i * dim, start.Y * dim);
+                if (statics.IsItemAtPoint(p))
+                {
+                    var end = statics.GetAllAtPoint(new Vector2(i * dim, start.Y * dim));
+                    res[1] = end.First();
+                }
+            }
+            for (int i = start.Y; i >= Math.Max(start.Y - power, 0); i--)
+            {
+                var p = new Point(i * dim, start.Y * dim);
+                if (statics.IsItemAtPoint(p))
+                {
+                    var end = statics.GetAllAtPoint(new Vector2(i * dim, start.Y * dim));
+                    res[2] = end.First();
+                }
+            }
+            for (int i = start.Y; i >= Math.Min(start.Y + power, height - 1); i++)
+            {
+                var p = new Point(i * dim, start.Y * dim);
+                if (statics.IsItemAtPoint(p))
+                {
+                    var end = statics.GetAllAtPoint(new Vector2(i * dim, start.Y * dim));
+                    res[3] = end.First();
+                }
+            }
+            return res;
         }
 
         public bool RegisterDynamic(IGameObject obj)

@@ -24,6 +24,7 @@ namespace BombermanObjects
         public ICollider collider;
         public GameObjectCollection statics;
         public GameObjectCollection bombs;
+        public StaticObjectCollection explosions;
         protected Player[] players;
         protected LocalInput input;
 
@@ -33,6 +34,7 @@ namespace BombermanObjects
             int dim = GAME_SIZE * BOX_WIDTH;
             collider = new Collider(GAME_SIZE, GAME_SIZE, BOX_WIDTH);
             statics = new StaticObjectCollection(dim, dim, BOX_WIDTH);
+            explosions = new StaticObjectCollection(dim, dim, BOX_WIDTH);
             bombs = new DynamicObjectCollection();
             this.players = new Player[players];
             input = new LocalInput();
@@ -66,6 +68,14 @@ namespace BombermanObjects
         {
             input.Update(gametime);
 
+            foreach (var e in explosions.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH)))
+            {
+                if (gametime.TotalGameTime >= (e as Explosion).RemoveAt)
+                {
+                    explosions.Remove(e);
+                }
+            }
+
             foreach (var p in players)
             {
                 p.Update(gametime, input.CurrentInput);
@@ -81,9 +91,52 @@ namespace BombermanObjects
         {
             if (gametime.TotalGameTime >= b.DetonateTime)
             {
-                bombs.Remove(b);
-                collider.UnRegisterStatic(b);
-                b.placedBy.PlacedBombs--;
+                ExplodeBomb(gametime, b);
+            }
+        }
+
+        public virtual void ExplodeBomb(GameTime gametime, Bomb b)
+        {
+            bombs.Remove(b);
+            collider.UnRegisterStatic(b);
+            b.placedBy.PlacedBombs--;
+
+            int x = b.Position.Center.X / b.Position.Width;
+            int y = b.Position.Center.Y / b.Position.Height;
+            int p = b.placedBy.BombPower;
+            var expBounds = collider.MaxFill(new Point(x, y), p);
+            int loX = x - p;
+            int hiX = x + p;
+            int loY = y - p;
+            int hiY = y + p;
+            if (expBounds[0] != null)
+            {
+                loX = expBounds[0].Position.Center.X / BOX_WIDTH + 1;
+            }
+            if (expBounds[1] != null)
+            {
+                hiX = expBounds[1].Position.Center.X / BOX_WIDTH - 1;
+            }
+            if (expBounds[2] != null)
+            {
+                loY = expBounds[2].Position.Center.Y / BOX_WIDTH + 1;
+            }
+            if (expBounds[3] != null)
+            {
+                hiY = expBounds[3].Position.Center.Y / BOX_WIDTH - 1;
+            }
+            for (int i = loX; i <= hiX; i++)
+            {
+                if (i == x)
+                {
+                    for (int j = loY; j <= hiY; j++)
+                    {
+                        explosions.Add(new Explosion(x, j, b.Position.Width, gametime.TotalGameTime));
+                    }
+                } else
+                {
+                    explosions.Add(new Explosion(i, y, b.Position.Width, gametime.TotalGameTime));
+                }
             }
         }
     }

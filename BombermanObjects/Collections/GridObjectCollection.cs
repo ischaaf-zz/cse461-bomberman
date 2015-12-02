@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace BombermanObjects.Collections
 {
-    class GridObjectCollection : GameObjectCollection
+    public class GridObjectCollection : GameObjectCollection
     {
 
         private List<List<IGameObject>> items;

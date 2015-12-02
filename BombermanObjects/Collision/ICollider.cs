@@ -26,5 +26,13 @@ namespace BombermanObjects.Collision
         /// <param name="maxMove">the max x or y movement to be made</param>
         /// <returns>the max distance the object can move bounded by maxMove</returns>
         Movement[] Move(IGameObject obj, Movement maxMove);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="bounds">[-x, +x, -y, +y]</param>
+        /// <returns></returns>
+        List<IGameObject> MaxFill(Point start, int power);
     }
 }

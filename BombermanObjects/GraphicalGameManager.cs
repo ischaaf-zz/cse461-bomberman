@@ -56,6 +56,10 @@ namespace BombermanObjects
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
+            foreach (var item in explosions.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH)))
+            {
+                (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
+            }
             foreach (var p in players)
             {
                 (p as Drawable.IDrawable).Draw(spritebatch, gameTime);
@@ -65,6 +69,52 @@ namespace BombermanObjects
         public override void UpdateBomb(GameTime gametime, Bomb b)
         {
             base.UpdateBomb(gametime, b);
+        }
+
+        public override void ExplodeBomb(GameTime gametime, Bomb b)
+        {
+            bombs.Remove(b);
+            collider.UnRegisterStatic(b);
+            b.placedBy.PlacedBombs--;
+
+            int x = b.Position.Center.X / b.Position.Width;
+            int y = b.Position.Center.Y / b.Position.Height;
+            int p = b.placedBy.BombPower;
+            var expBounds = collider.MaxFill(new Point(x, y), p);
+            int loX = x - p;
+            int hiX = x + p;
+            int loY = y - p;
+            int hiY = y + p;
+            if (expBounds[0] != null)
+            {
+                loX = expBounds[0].Position.Center.X / BOX_WIDTH + 1;
+            }
+            if (expBounds[1] != null)
+            {
+                hiX = expBounds[1].Position.Center.X / BOX_WIDTH - 1;
+            }
+            if (expBounds[2] != null)
+            {
+                loY = expBounds[2].Position.Center.Y / BOX_WIDTH + 1;
+            }
+            if (expBounds[3] != null)
+            {
+                hiY = expBounds[3].Position.Center.Y / BOX_WIDTH - 1;
+            }
+            for (int i = loX; i <= hiX; i++)
+            {
+                if (i == x)
+                {
+                    for (int j = loY; j <= hiY; j++)
+                    {
+                        explosions.Add(new DrawableExplosion(x, j, b.Position.Width, gametime.TotalGameTime, textures["explosion"]));
+                    }
+                }
+                else
+                {
+                    explosions.Add(new DrawableExplosion(i, y, b.Position.Width, gametime.TotalGameTime, textures["explosion"]));
+                }
+            }
         }
     }
 }

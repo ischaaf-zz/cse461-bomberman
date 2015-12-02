@@ -48,6 +48,7 @@
     <Compile Include="Collision\Collider.cs" />
     <Compile Include="Collision\ICollider.cs" />
     <Compile Include="Drawable\DrawableBomb.cs" />
+    <Compile Include="Drawable\DrawableExplosion.cs" />
     <Compile Include="Drawable\DrawablePlayer.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="GraphicalGameManager.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Collections\StaticObjectCollection.cs" />
     <Compile Include="Drawable\DrawableWall.cs" />
     <Compile Include="Drawable\IDrawable.cs" />
+    <Compile Include="Logical\Explosion.cs" />
     <Compile Include="Logical\IGameObject.cs" />
     <Compile Include="Logical\Player.cs" />
     <Compile Include="Logical\PowerUp.cs" />
