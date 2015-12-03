@@ -14,8 +14,8 @@ namespace BombermanObjects.Drawable
 
         private Texture2D texture;
 
-        public DrawableBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, Texture2D tex) 
-            : base(x, y, placed, ttd, placedBy, dim)
+        public DrawableBomb(GameManager m, int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, Texture2D tex) 
+            : base(m, x, y, placed, ttd, placedBy, dim)
         {
             texture = tex;
         }

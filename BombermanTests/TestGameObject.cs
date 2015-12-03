@@ -1,16 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using BombermanObjects.Logical;
+using BombermanObjects;
 
 namespace BombermanTests
 {
-    class TestGameObject : IGameObject
+    class TestGameObject : AbstractGameObject
     {
-
-        public Rectangle Position { get; set; }
-
         public string Name { get; set; }
 
-        public TestGameObject(Rectangle position, string name)
+        public TestGameObject(GameManager m, Rectangle position, string name) : base(m)
         {
             Name = name;
             Position = position;

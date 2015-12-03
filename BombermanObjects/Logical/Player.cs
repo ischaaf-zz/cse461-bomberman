@@ -9,14 +9,12 @@ using Microsoft.Xna.Framework.Input;
 
 namespace BombermanObjects.Logical
 {
-    public class Player : IGameObject
+    public class Player : AbstractGameObject
     {
         public enum Direction
         {
             North, South, East, West, Center
         }
-
-        public GameManager Manager { get; set; }
 
         public int Speed { get; set; }
 
@@ -32,27 +30,26 @@ namespace BombermanObjects.Logical
 
         public Direction MoveDirection { get; set; }
 
-
-        protected Rectangle position;
-
-        public Player(Rectangle pos)
-        {
-            position = pos;
-            // start: 3, end: 7_
-            Speed = 3;
-            Lives = 2;
-            MaxBombs = 1;
-            BombPower = 2;
-            PlacedBombs = 0;
-            CanKick = false;
-        }
-
-        public Rectangle Position
+        public override Rectangle Position
         {
             get
             {
                 return position;
             }
+        }
+
+        protected Rectangle position;
+
+        public Player(GameManager m, Rectangle pos) : base(m)
+        {
+            position = pos;
+            // start: 3, end: 7_
+            Speed = 3;
+            Lives = 2;
+            MaxBombs = 5;
+            BombPower = 2;
+            PlacedBombs = 0;
+            CanKick = false;
         }
 
         public void Update(GameTime gametime, PlayerInput input)
@@ -76,7 +73,7 @@ namespace BombermanObjects.Logical
         {
             bool moved = false;
             Movement m = new Movement(dist, dir);
-            var res = Manager.collider.Move(this, m);
+            var res = manager.collider.Move(this, m);
             foreach (var move in res)
             {
                 switch (move.Direction)
@@ -106,9 +103,10 @@ namespace BombermanObjects.Logical
         {
             int x = position.Center.X / position.Width;
             int y = position.Center.Y / position.Height;
-            if (PlacedBombs < MaxBombs && Manager.bombs.GetAllAtPoint(new Vector2(position.Center.X, position.Center.Y)).Count == 0)
+            if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)))
             {
                 Bomb b = new Bomb(
+                    manager,
                     x,
                     y,
                     gameTime.TotalGameTime,
@@ -116,8 +114,8 @@ namespace BombermanObjects.Logical
                     this,
                     position.Width
                 );
-                Manager.collider.RegisterStatic(b);
-                Manager.bombs.Add(b);
+                manager.collider.RegisterStatic(b);
+                manager.bombs.Add(b);
                 PlacedBombs++;
             }
         }

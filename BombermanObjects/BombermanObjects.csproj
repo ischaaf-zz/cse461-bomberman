@@ -36,6 +36,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\GridObjectCollection.cs" />
+    <Compile Include="Collections\SingleGridObjectCollection.cs" />
     <Compile Include="Collision\Collider.cs" />
     <Compile Include="Collision\ICollider.cs" />
     <Compile Include="Drawable\DrawableBomb.cs" />
@@ -53,6 +55,7 @@
     <Compile Include="GameManager.cs" />
     <Compile Include="GraphicalGameManager.cs" />
     <Compile Include="LocalInput.cs" />
+    <Compile Include="Logical\AbstractGameObject.cs" />
     <Compile Include="Logical\Bomb.cs" />
     <Compile Include="Logical\Box.cs" />
     <Compile Include="Collections\DynamicObjectCollection.cs" />

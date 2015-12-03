@@ -14,7 +14,7 @@ namespace BombermanObjects.Drawable
         private Texture2D texture;
         private Rectangle textureRect;
 
-        public DrawableWall(Texture2D tex, Rectangle position, Rectangle? textureRect) : base(position)
+        public DrawableWall(GameManager m, Texture2D tex, Rectangle position, Rectangle? textureRect) : base(m, position)
         {
             texture = tex;
             this.textureRect = (textureRect.HasValue) ? textureRect.Value : new Rectangle(0, 0, position.Width, position.Height);

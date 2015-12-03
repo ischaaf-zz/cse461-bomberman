@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace BombermanObjects.Logical
 {
-    public class Explosion : IGameObject
+    public class Explosion : AbstractGameObject
     {
-        public Rectangle Position { get; set; }
         public TimeSpan RemoveAt { get; }
 
-        public Explosion(int x, int y, int dim, TimeSpan startedAt)
+        public Explosion(GameManager m, int x, int y, int dim, TimeSpan startedAt) : base(m)
         {
             Position = new Rectangle(x * dim, y * dim, dim, dim);
             RemoveAt = startedAt.Add(new TimeSpan(0, 0, 1));

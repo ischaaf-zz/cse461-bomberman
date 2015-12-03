@@ -24,7 +24,7 @@ namespace BombermanObjects.Drawable
         private int spriteIndex;
         private TimeSpan lastTime;
 
-        public DrawablePlayer(Rectangle pos, Texture2D tex) : base(pos)
+        public DrawablePlayer(GameManager m, Rectangle pos, Texture2D tex) : base(m, pos)
         {
             texture = tex;
             lastDirection = Direction.Center;
@@ -74,21 +74,22 @@ namespace BombermanObjects.Drawable
 
         protected override void placeBomb(GameTime gameTime)
         {
-            int x = position.Center.X / position.Width;
-            int y = position.Center.Y / position.Height;
-            if (PlacedBombs < MaxBombs && Manager.bombs.GetAllAtPoint(new Vector2(position.Center.X, position.Center.Y)).Count == 0)
+            int x = Position.Center.X / Position.Width;
+            int y = Position.Center.Y / Position.Height;
+            if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)))
             {
                 DrawableBomb b = new DrawableBomb(
+                    manager,
                     x,
                     y,
                     gameTime.TotalGameTime,
                     3,
                     this,
-                    position.Width,
-                    (Manager as GraphicalGameManager).textures["bomb"]
+                    Position.Width,
+                    (manager as GraphicalGameManager).textures["bomb"]
                 );
-                Manager.collider.RegisterStatic(b);
-                Manager.bombs.Add(b);
+                manager.collider.RegisterStatic(b);
+                manager.bombs.Add(b);
                 PlacedBombs++; 
             }
         }

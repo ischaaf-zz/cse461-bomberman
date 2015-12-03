@@ -14,9 +14,6 @@ namespace BombermanTests
         static void Main(string[] args)
         {
             Collider c = new Collider(832, 832, 64);
-
-            c.RegisterStatic(new TestGameObject(new Rectangle(0, 64, 64, 64), "Block"));
-            TestGameObject player = new TestGameObject(new Rectangle(66, 64, 64, 64), "Player");
             Console.Read();
         }
     }

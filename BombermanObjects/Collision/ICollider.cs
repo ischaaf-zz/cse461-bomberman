@@ -10,13 +10,9 @@ namespace BombermanObjects.Collision
 {
     public interface ICollider
     {
-        bool RegisterStatic(IGameObject obj);
+        bool RegisterStatic(AbstractGameObject obj);
 
-        bool UnRegisterStatic(IGameObject obj);
-
-        bool RegisterDynamic(IGameObject obj);
-
-        bool UnRegisterDynamic(IGameObject obj);
+        bool UnRegisterStatic(AbstractGameObject obj);
 
         /// <summary>
         /// return the max value that the object can move bounded by the given max move vector
@@ -33,6 +29,6 @@ namespace BombermanObjects.Collision
         /// <param name="start"></param>
         /// <param name="bounds">[-x, +x, -y, +y]</param>
         /// <returns></returns>
-        List<IGameObject> MaxFill(Point start, int power);
+        AbstractGameObject[] MaxFill(Point start, int power);
     }
 }

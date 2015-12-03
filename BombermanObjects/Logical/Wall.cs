@@ -9,16 +9,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BombermanObjects.Logical
 {
-    public class Wall : IGameObject
+    public class Wall : AbstractGameObject
     {
         protected Rectangle position;
 
-        public Wall(Rectangle position)
+        public Wall(GameManager m, Rectangle position) : base(m)
         {
             this.position = position;
         }
 
-        public Rectangle Position
+        public override Rectangle Position
         {
             get
             {

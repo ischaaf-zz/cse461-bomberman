@@ -12,15 +12,19 @@ namespace BombermanObjects.Drawable
     public class DrawableExplosion : Explosion, IDrawable
     {
         private Texture2D texture;
+        private double maxTicks = new TimeSpan(0, 0, 3).TotalMilliseconds;
 
-        public DrawableExplosion(int x, int y, int dim, TimeSpan placedAt, Texture2D tex) : base(x, y, dim, placedAt)
+        public DrawableExplosion(GameManager m, int x, int y, int dim, TimeSpan placedAt, Texture2D tex) : base(m, x, y, dim, placedAt)
         {
             texture = tex;
         }
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
-            spritebatch.Draw(texture, Position, Color.White);
+            double diff = (RemoveAt.TotalMilliseconds - gameTime.TotalGameTime.TotalMilliseconds) / maxTicks;
+            diff = Math.Max(diff, 0);
+             
+            spritebatch.Draw(texture, Position, new Color(Color.White, (int)(diff * 255)));
         }
     }
 }
