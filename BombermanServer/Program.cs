@@ -10,6 +10,9 @@ namespace BombermanServer
     {
         static void Main(string[] args)
         {
+            // command line: number of players?
+            // create server with X players
+            // server.start() starts accepting connections
         }
     }
 }
