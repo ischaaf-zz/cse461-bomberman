@@ -1,17 +1,17 @@
-﻿using System;
+﻿using BombermanObjects.Logical;
+using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BombermanObjects.Logical;
-using Microsoft.Xna.Framework;
+using System.Collections;
 
 namespace BombermanObjects.Collections
 {
-    public class GridObjectCollection : GameObjectCollection
+    public class GridObjectCollection
     {
-
-        private List<List<IGameObject>> items;
+        private List<AbstractGameObject>[][] items;
 
         public int Dimension { get; }
         public int Width { get; }
@@ -22,60 +22,68 @@ namespace BombermanObjects.Collections
             Dimension = dim;
             Width = w;
             Height = h;
-            items = new List<List<IGameObject>>(w);
+            items = new List<AbstractGameObject>[w][];
             for (int i = 0; i < w; i++)
             {
-                var l = new List<IGameObject>(h);
+                items[i] = new List<AbstractGameObject>[h];
                 for (int j = 0; j < h; j++)
                 {
-                    l.Add(null);
+                    items[i][j] = new List<AbstractGameObject>();
                 }
-                items.Add(l);
             }
         }
 
-        public override void Add(IGameObject obj)
+        public void Add(AbstractGameObject obj)
         {
-            var rect = obj.Position;
-            if (rect.Left % Dimension != 0 || rect.Width != Dimension || rect.Height != Dimension)
-                throw new ArgumentException($"Item not {Dimension}-aligned");
-            int w = rect.Center.X / Dimension;
-            int h = rect.Center.Y / Dimension;
-            items[w][h] = obj;
+            Point loc = obj.CenterGrid;
+            items[loc.X][loc.Y].Add(obj);
         }
 
-        public override void GetAllAtPoint(Vector2 position, ref HashSet<IGameObject> current)
+        public List<AbstractGameObject> GetAtPoint(Point position)
         {
-            int w = (int)position.X / Dimension;
-            int h = (int)position.Y / Dimension;
-            if (items[w][h] != null)
-                current.Add(items[w][h]);
-        }
-
-        public override void GetAllInRegion(Rectangle box, ref HashSet<IGameObject> current)
-        {
-            throw new NotImplementedException();
+            return items[position.X][position.Y];
         }
 
         public bool IsItemAtPoint(Point p)
         {
-            return items[p.X / Dimension][p.Y / Dimension] != null;
+            return items[p.X][p.Y].Count != 0;
         }
 
-        public override bool Remove(IGameObject obj)
+        public bool Remove(AbstractGameObject obj)
         {
-            var rect = obj.Position;
-            if (rect.Left % Dimension != 0 || rect.Width != Dimension || rect.Height != Dimension)
-                throw new ArgumentException($"Item not {Dimension}-aligned");
-            int w = rect.Center.X / Dimension;
-            int h = rect.Center.Y / Dimension;
-            if (items[w][h] == obj)
+            var loc = obj.CenterGrid;
+            var list = items[loc.X][loc.Y];
+            foreach (var item in list)
             {
-                items[w][h] = null;
-                return true;
-            } else
+                if (item == obj)
+                {
+                    list.Remove(item);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public IEnumerator<AbstractGameObject> GetEnumerator()
+        {
+            return Next;
+        }
+
+        public IEnumerator<AbstractGameObject> Next
+        {
+            get
             {
-                return false;
+                foreach (var arr1 in items)
+                {
+                    foreach (var arr2 in arr1)
+                    {
+                        foreach (var item in arr2)
+                        {
+                            if (item != null)
+                                yield return item;
+                        }
+                    }
+                }
             }
         }
     }

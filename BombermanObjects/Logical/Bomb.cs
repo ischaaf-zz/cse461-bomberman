@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace BombermanObjects.Logical
 {
-    public class Bomb : IGameObject
+    public class Bomb : AbstractGameObject
     {
 
         public int x;
@@ -17,7 +17,7 @@ namespace BombermanObjects.Logical
         public TimeSpan detonateAt;
         public Player placedBy;
 
-        public Bomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim)
+        public Bomb(GameManager m, int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim) : base(m)
         {
             this.x = x;
             this.y = y;
@@ -34,7 +34,7 @@ namespace BombermanObjects.Logical
                 return detonateAt;
             }
         }
-        public Rectangle Position
+        public override Rectangle Position
         {
             get
             {

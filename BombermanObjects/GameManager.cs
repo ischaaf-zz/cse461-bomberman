@@ -22,9 +22,9 @@ namespace BombermanObjects
         };
 
         public ICollider collider;
-        public GameObjectCollection statics;
-        public GameObjectCollection bombs;
-        public StaticObjectCollection explosions;
+        public SingleGridObjectCollection statics;
+        public SingleGridObjectCollection bombs;
+        public GridObjectCollection explosions;
         protected Player[] players;
         protected LocalInput input;
 
@@ -33,9 +33,9 @@ namespace BombermanObjects
         {
             int dim = GAME_SIZE * BOX_WIDTH;
             collider = new Collider(GAME_SIZE, GAME_SIZE, BOX_WIDTH);
-            statics = new StaticObjectCollection(dim, dim, BOX_WIDTH);
-            explosions = new StaticObjectCollection(dim, dim, BOX_WIDTH);
-            bombs = new DynamicObjectCollection();
+            statics = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, BOX_WIDTH);
+            explosions = new GridObjectCollection(BOX_WIDTH, GAME_SIZE, BOX_WIDTH);
+            bombs = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
             this.players = new Player[players];
             input = new LocalInput();
         }
@@ -44,10 +44,9 @@ namespace BombermanObjects
         {
             for (int i = 0; i < players.Length; i++)
             {
-                players[i] = new Player(STARTS[i]);
-                players[i].Manager = this;
+                players[i] = new Player(this, STARTS[i]);
             }
-            IGameObject background = new Wall(new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE));
+            AbstractGameObject background = new Wall(this, new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE));
             statics.Add(background);
 
             for (int i = 0; i < GAME_SIZE; i++)
@@ -56,7 +55,7 @@ namespace BombermanObjects
                 {
                     if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
                     {
-                        IGameObject wall = new Wall(new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH));
+                        AbstractGameObject wall = new Wall(this, new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH));
                         statics.Add(wall);
                         collider.RegisterStatic(wall);
                     }
@@ -68,19 +67,26 @@ namespace BombermanObjects
         {
             input.Update(gametime);
 
-            foreach (var e in explosions.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH)))
+            HashSet<AbstractGameObject> toRemove = new HashSet<AbstractGameObject>();
+
+            foreach (var e in explosions)
             {
                 if (gametime.TotalGameTime >= (e as Explosion).RemoveAt)
                 {
-                    explosions.Remove(e);
+                    toRemove.Add(e);
                 }
+            }
+            foreach (var e in toRemove)
+            {
+                explosions.Remove(e);
             }
 
             foreach (var p in players)
             {
                 p.Update(gametime, input.CurrentInput);
             }
-            foreach (var b in bombs.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE*BOX_WIDTH, GAME_SIZE*BOX_WIDTH)))
+
+            foreach (var b in bombs)
             {
                 UpdateBomb(gametime, b as Bomb);
             }
@@ -131,11 +137,11 @@ namespace BombermanObjects
                 {
                     for (int j = loY; j <= hiY; j++)
                     {
-                        explosions.Add(new Explosion(x, j, b.Position.Width, gametime.TotalGameTime));
+                        explosions.Add(new Explosion(this, x, j, b.Position.Width, gametime.TotalGameTime));
                     }
                 } else
                 {
-                    explosions.Add(new Explosion(i, y, b.Position.Width, gametime.TotalGameTime));
+                    explosions.Add(new Explosion(this, i, y, b.Position.Width, gametime.TotalGameTime));
                 }
             }
         }

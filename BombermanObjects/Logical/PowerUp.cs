@@ -7,14 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace BombermanObjects.Logical
 {
-    public class PowerUp : IGameObject
+    public class PowerUp : AbstractGameObject
     {
-        public Rectangle Position
+        public PowerUp(GameManager m) : base(m)
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+
         }
     }
 }

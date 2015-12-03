@@ -13,6 +13,8 @@ namespace BombermanObjects
     public class GraphicalGameManager : GameManager
     {
 
+        public DrawableWall background;
+
         public Dictionary<string, Texture2D> textures;
 
         public GraphicalGameManager(int players, Dictionary<string, Texture2D> textureMappings) : base(players)
@@ -24,11 +26,9 @@ namespace BombermanObjects
         {
             for (int i = 0; i < players.Length; i++)
             {
-                players[i] = new DrawablePlayer(STARTS[i], textures["player"]);
-                players[i].Manager = this;
+                players[i] = new DrawablePlayer(this, STARTS[i], textures["player"]);
             }
-            IGameObject background = new DrawableWall(textures["background"], new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE), null);
-            statics.Add(background);
+            background = new DrawableWall(this, textures["background"], new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE), null);
 
             for (int i = 0; i < GAME_SIZE; i++)
             {
@@ -36,7 +36,7 @@ namespace BombermanObjects
                 {
                     if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
                     {
-                        IGameObject wall = new DrawableWall(textures["wall"], new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH), null);
+                        AbstractGameObject wall = new DrawableWall(this, textures["wall"], new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH), null);
                         statics.Add(wall);
                         collider.RegisterStatic(wall);
                     }
@@ -46,17 +46,17 @@ namespace BombermanObjects
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
-            var backgrounds = statics.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
-            foreach (var item in backgrounds)
+            background.Draw(spritebatch, gameTime);
+
+            foreach (var item in statics)
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
-            var bombs = base.bombs.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH));
             foreach (var item in bombs)
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
-            foreach (var item in explosions.GetAllInRegion(new Rectangle(0, 0, GAME_SIZE * BOX_WIDTH, GAME_SIZE * BOX_WIDTH)))
+            foreach (var item in explosions)
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
@@ -80,41 +80,55 @@ namespace BombermanObjects
             int x = b.Position.Center.X / b.Position.Width;
             int y = b.Position.Center.Y / b.Position.Height;
             int p = b.placedBy.BombPower;
-            var expBounds = collider.MaxFill(new Point(x, y), p);
             int loX = x - p;
             int hiX = x + p;
             int loY = y - p;
             int hiY = y + p;
-            if (expBounds[0] != null)
+            // Negative X
+            PlaceExplosion(x, y, gametime);
+            for (int i = x - 1; i >= loX; i--)
             {
-                loX = expBounds[0].Position.Center.X / BOX_WIDTH + 1;
+                if (!PlaceExplosion(i, y, gametime))
+                    break;
             }
-            if (expBounds[1] != null)
+            // Positive X
+            for (int i = x + 1; i <= hiX; i++)
             {
-                hiX = expBounds[1].Position.Center.X / BOX_WIDTH - 1;
+                if (!PlaceExplosion(i, y, gametime))
+                    break;
             }
-            if (expBounds[2] != null)
+            // Negative Y
+            for (int i = y - 1; i >= loY; i--)
             {
-                loY = expBounds[2].Position.Center.Y / BOX_WIDTH + 1;
+                if (!PlaceExplosion(x, i, gametime))
+                    break;
             }
-            if (expBounds[3] != null)
+            // Positive Y
+            for (int i = y + 1; i <= hiY; i++)
             {
-                hiY = expBounds[3].Position.Center.Y / BOX_WIDTH - 1;
+                if (!PlaceExplosion(x, i, gametime))
+                    break;
             }
-            for (int i = loX; i <= hiX; i++)
+        }
+
+        private bool PlaceExplosion(int x, int y, GameTime gametime)
+        {
+            Point p = new Point(x, y);
+            if (bombs.IsItemAtPoint(p))
             {
-                if (i == x)
+                Bomb b = bombs.GetAtPoint(p) as Bomb;
+                ExplodeBomb(gametime, b);
+            } else if (statics.IsItemAtPoint(p))
+            {
+                var item = statics.GetAtPoint(p);
+                if (item is Box)
                 {
-                    for (int j = loY; j <= hiY; j++)
-                    {
-                        explosions.Add(new DrawableExplosion(x, j, b.Position.Width, gametime.TotalGameTime, textures["explosion"]));
-                    }
+                    // blow the box up
                 }
-                else
-                {
-                    explosions.Add(new DrawableExplosion(i, y, b.Position.Width, gametime.TotalGameTime, textures["explosion"]));
-                }
+                return false;
             }
+            explosions.Add(new DrawableExplosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime, textures["explosion"]));
+            return true;
         }
     }
 }
