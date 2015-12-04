@@ -25,8 +25,13 @@ namespace BombermanObjects
         public SingleGridObjectCollection statics;
         public SingleGridObjectCollection bombs;
         public GridObjectCollection explosions;
+        public SingleGridObjectCollection powerUps;
         protected Player[] players;
         protected LocalInput input;
+
+        public int TotalBombCap { get; set; }
+        public int TotalBombPow { get; set; }
+        public int TotalSpeed { get; set; }
 
 
         public GameManager(int players)
@@ -36,8 +41,12 @@ namespace BombermanObjects
             statics = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, BOX_WIDTH);
             explosions = new GridObjectCollection(BOX_WIDTH, GAME_SIZE, BOX_WIDTH);
             bombs = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
+            powerUps = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
             this.players = new Player[players];
             input = new LocalInput();
+            TotalBombCap = 15;
+            TotalBombPow = 20;
+            TotalSpeed = 10;
         }
 
         public virtual void Initialize()
@@ -79,6 +88,8 @@ namespace BombermanObjects
             foreach (var e in toRemove)
             {
                 explosions.Remove(e);
+                Explosion exp = e as Explosion;
+                (statics.GetAtPoint(exp.CenterGrid) as Box)?.Destroy();
             }
 
             foreach (var p in players)
@@ -110,40 +121,56 @@ namespace BombermanObjects
             int x = b.Position.Center.X / b.Position.Width;
             int y = b.Position.Center.Y / b.Position.Height;
             int p = b.placedBy.BombPower;
-            var expBounds = collider.MaxFill(new Point(x, y), p);
             int loX = x - p;
             int hiX = x + p;
             int loY = y - p;
             int hiY = y + p;
-            if (expBounds[0] != null)
+            // Negative X
+            PlaceExplosion(x, y, gametime);
+            for (int i = x - 1; i >= loX; i--)
             {
-                loX = expBounds[0].Position.Center.X / BOX_WIDTH + 1;
+                if (!PlaceExplosion(i, y, gametime))
+                    break;
             }
-            if (expBounds[1] != null)
+            // Positive X
+            for (int i = x + 1; i <= hiX; i++)
             {
-                hiX = expBounds[1].Position.Center.X / BOX_WIDTH - 1;
+                if (!PlaceExplosion(i, y, gametime))
+                    break;
             }
-            if (expBounds[2] != null)
+            // Negative Y
+            for (int i = y - 1; i >= loY; i--)
             {
-                loY = expBounds[2].Position.Center.Y / BOX_WIDTH + 1;
+                if (!PlaceExplosion(x, i, gametime))
+                    break;
             }
-            if (expBounds[3] != null)
+            // Positive Y
+            for (int i = y + 1; i <= hiY; i++)
             {
-                hiY = expBounds[3].Position.Center.Y / BOX_WIDTH - 1;
+                if (!PlaceExplosion(x, i, gametime))
+                    break;
             }
-            for (int i = loX; i <= hiX; i++)
+        }
+
+        public virtual bool PlaceExplosion(int x, int y, GameTime gametime)
+        {
+            Point p = new Point(x, y);
+            if (bombs.IsItemAtPoint(p))
             {
-                if (i == x)
+                Bomb b = bombs.GetAtPoint(p) as Bomb;
+                ExplodeBomb(gametime, b);
+            }
+            else if (statics.IsItemAtPoint(p))
+            {
+                var item = statics.GetAtPoint(p);
+                if (item is Box)
                 {
-                    for (int j = loY; j <= hiY; j++)
-                    {
-                        explosions.Add(new Explosion(this, x, j, b.Position.Width, gametime.TotalGameTime));
-                    }
-                } else
-                {
-                    explosions.Add(new Explosion(this, i, y, b.Position.Width, gametime.TotalGameTime));
+                    explosions.Add(new Explosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime));
                 }
+                return false;
             }
+            explosions.Add(new Explosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime));
+            return true;
         }
     }
 }

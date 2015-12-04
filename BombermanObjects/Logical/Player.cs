@@ -26,6 +26,8 @@ namespace BombermanObjects.Logical
 
         public int BombPower { get; set; }
 
+        public TimeSpan ImmuneTill { get; set; }
+
         public bool CanKick { get; set; }
 
         public Direction MoveDirection { get; set; }
@@ -46,7 +48,7 @@ namespace BombermanObjects.Logical
             // start: 3, end: 7_
             Speed = 3;
             Lives = 2;
-            MaxBombs = 5;
+            MaxBombs = 1;
             BombPower = 2;
             PlacedBombs = 0;
             CanKick = false;
@@ -54,6 +56,11 @@ namespace BombermanObjects.Logical
 
         public void Update(GameTime gametime, PlayerInput input)
         {
+            // move
+            if (Lives <= 0)
+            {
+                return;
+            }
             bool moved = false;
             foreach (var dir in input.Move)
             {
@@ -63,9 +70,40 @@ namespace BombermanObjects.Logical
             }
             if (!moved)
                 MoveDirection = Direction.Center;
+            // place bombs
             if (input.PlaceBomb)
             {
                 placeBomb(gametime);
+            }
+            Rectangle iRect = new Rectangle(position.X + 10, position.Y + 10, 44, 44);
+            int cY = iRect.Center.Y / GameManager.BOX_WIDTH;
+            int hY = iRect.Bottom / GameManager.BOX_WIDTH;
+            int lY = iRect.Top / GameManager.BOX_WIDTH;
+            int cX = iRect.Center.X / GameManager.BOX_WIDTH;
+            int hX = iRect.Right / GameManager.BOX_WIDTH;
+            int lX = iRect.Left / GameManager.BOX_WIDTH;
+
+            Point[] ps = { new Point(lX, cY), new Point(hX, cY), new Point(cX, hY), new Point(cX, lY) };
+            // check for explosions
+            // check left
+            if (gametime.TotalGameTime > ImmuneTill && 
+                (manager.explosions.GetAtPoint(ps[0])?.Count > 0 ||
+                manager.explosions.GetAtPoint(ps[1])?.Count > 0 ||
+                manager.explosions.GetAtPoint(ps[2])?.Count > 0 ||
+                manager.explosions.GetAtPoint(ps[3])?.Count > 0))
+            {
+                Lives--;
+                ImmuneTill = gametime.TotalGameTime.Add(new TimeSpan(0, 0, 1));
+            }
+            // check for powerups
+            for (int i = 0; i < 4; i++)
+            {
+                PowerUp p = manager.powerUps.GetAtPoint(ps[i]) as PowerUp;
+                if (p != null)
+                {
+                    p.Apply(this);
+                    manager.powerUps.Remove(p);
+                }
             }
         }
 

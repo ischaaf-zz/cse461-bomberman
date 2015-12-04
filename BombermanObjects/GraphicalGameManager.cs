@@ -42,6 +42,47 @@ namespace BombermanObjects
                     }
                 }
             }
+            List<Box> boxes = new List<Box>();
+            HashSet<Point> avoid = new HashSet<Point>() {
+                new Point(1, 1), new Point(1, 2), new Point(2, 1), new Point(11, 1), new Point(10, 1), new Point(11, 2),
+                new Point(1, 11), new Point(1, 10), new Point(2, 11), new Point(11, 11), new Point(10, 11), new Point(11, 10)
+            };
+            for (int i = 1; i < GAME_SIZE - 1; i++)
+            {
+                for (int j = 1; j < GAME_SIZE - 1; j++)
+                {
+                    if (statics.IsItemAtPoint(new Point(i, j)))
+                        continue;
+                    if (avoid.Contains(new Point(i, j)))
+                        continue;
+                    DrawableBox box = new DrawableBox(this, i, j, null, textures["box"]);
+                    statics.Add(box);
+                    collider.RegisterStatic(box);
+                    boxes.Add(box);
+                }
+            }
+            Random rand = new Random();
+            boxes.Shuffle();
+            int index = 0;
+            for (int i = 0; i < TotalBombCap; i++)
+            {
+                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.BombCap, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
+                index++;
+            }
+            for (int i = 0; i < TotalBombPow; i++)
+            {
+                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.BombPower, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
+                index++;
+            }
+            for (int i = 0; i < TotalSpeed; i++)
+            {
+                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.Speed, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
+                index++;
+            }
+            //foreach (var b in boxes)
+            //{
+            //    b.Destroy();
+            //}
         }
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
@@ -49,6 +90,10 @@ namespace BombermanObjects
             background.Draw(spritebatch, gameTime);
 
             foreach (var item in statics)
+            {
+                (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
+            }
+            foreach (var item in powerUps)
             {
                 (item as Drawable.IDrawable).Draw(spritebatch, gameTime);
             }
@@ -71,47 +116,7 @@ namespace BombermanObjects
             base.UpdateBomb(gametime, b);
         }
 
-        public override void ExplodeBomb(GameTime gametime, Bomb b)
-        {
-            bombs.Remove(b);
-            collider.UnRegisterStatic(b);
-            b.placedBy.PlacedBombs--;
-
-            int x = b.Position.Center.X / b.Position.Width;
-            int y = b.Position.Center.Y / b.Position.Height;
-            int p = b.placedBy.BombPower;
-            int loX = x - p;
-            int hiX = x + p;
-            int loY = y - p;
-            int hiY = y + p;
-            // Negative X
-            PlaceExplosion(x, y, gametime);
-            for (int i = x - 1; i >= loX; i--)
-            {
-                if (!PlaceExplosion(i, y, gametime))
-                    break;
-            }
-            // Positive X
-            for (int i = x + 1; i <= hiX; i++)
-            {
-                if (!PlaceExplosion(i, y, gametime))
-                    break;
-            }
-            // Negative Y
-            for (int i = y - 1; i >= loY; i--)
-            {
-                if (!PlaceExplosion(x, i, gametime))
-                    break;
-            }
-            // Positive Y
-            for (int i = y + 1; i <= hiY; i++)
-            {
-                if (!PlaceExplosion(x, i, gametime))
-                    break;
-            }
-        }
-
-        private bool PlaceExplosion(int x, int y, GameTime gametime)
+        public override bool PlaceExplosion(int x, int y, GameTime gametime)
         {
             Point p = new Point(x, y);
             if (bombs.IsItemAtPoint(p))
@@ -124,6 +129,7 @@ namespace BombermanObjects
                 if (item is Box)
                 {
                     // blow the box up
+                    explosions.Add(new DrawableExplosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime, textures["explosion"]));
                 }
                 return false;
             }

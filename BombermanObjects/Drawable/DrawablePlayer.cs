@@ -33,6 +33,13 @@ namespace BombermanObjects.Drawable
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
+            if (Lives <= 0)
+            {
+                // 9,0
+                Rectangle tr = new Rectangle(9 * 80 + 8, 0 * 80 + 8, 64, 64);
+                spritebatch.Draw(texture, Position, tr, Color.Red);
+                return;
+            }
             Point m = new Point();
             if (MoveDirection != Direction.Center)
             {
@@ -68,8 +75,10 @@ namespace BombermanObjects.Drawable
             }
             lastDirection = MoveDirection;
             Rectangle textureRect = new Rectangle(m.X * 80 + 8, m.Y * 80 + 8, 64, 64);
-
-            spritebatch.Draw(texture, Position, textureRect, Color.White);
+            Color c = Color.White;
+            if (gameTime.TotalGameTime < ImmuneTill)
+                c = new Color(Color.White, 127);
+            spritebatch.Draw(texture, Position, textureRect, c);
         }
 
         protected override void placeBomb(GameTime gameTime)

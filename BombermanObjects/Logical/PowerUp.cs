@@ -9,9 +9,50 @@ namespace BombermanObjects.Logical
 {
     public class PowerUp : AbstractGameObject
     {
-        public PowerUp(GameManager m) : base(m)
+        public enum PowerUpType
         {
+            Speed, BombCap, BombPower
+        }
 
+        protected int xPos;
+        protected int yPos;
+
+        public PowerUpType Type { get; }
+
+        public PowerUp(GameManager m, PowerUpType type, int x, int y) : base(m)
+        {
+            Type = type;
+            xPos = x;
+            yPos = y;
+        }
+
+        public override Rectangle Position
+        {
+            get
+            {
+                return new Rectangle(xPos*GameManager.BOX_WIDTH, yPos*GameManager.BOX_WIDTH, GameManager.BOX_WIDTH, GameManager.BOX_WIDTH);
+            }
+
+            set
+            {
+                base.Position = value;
+            }
+        }
+
+        public void Apply(Player p)
+        {
+            switch (Type)
+            {
+                case PowerUpType.BombCap:
+                    p.MaxBombs++;
+                    break;
+                case PowerUpType.BombPower:
+                    p.BombPower++;
+                    break;
+                case PowerUpType.Speed:
+                    p.Speed = Math.Min(7, p.Speed + 1);
+                    break;
+            }
         }
     }
 }
