@@ -8,10 +8,23 @@ namespace BombermanClient
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            BombermanGame game = new BombermanGame();
+            if (args.Length != 2)
+            {
+                Usage();
+                //return -1;
+            }
+            BombermanGame game = new BombermanGame("127.0.0.1", 5555);
+            //BombermanGame game = new BombermanGame(args[0], Convert.ToInt32(args[1]));
             game.Run();
+            return 0;
+        }
+
+        static void Usage()
+        {
+            Console.WriteLine("IP address and port");
+
         }
     }
 }

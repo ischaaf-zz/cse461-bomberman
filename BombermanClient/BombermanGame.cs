@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Lidgren.Network;
 
 namespace BombermanClient
 {
@@ -17,8 +18,28 @@ namespace BombermanClient
         protected SpriteBatch spritebatch;
         protected GraphicalGameManager manager;
 
-        public BombermanGame() : base()
+        NetClient client;
+        private bool gameStarted;
+        private bool gameDrawn;
+
+        public BombermanGame(String hostIp, int port) : base()
         {
+            gameStarted = false;
+            gameDrawn = false;
+            NetPeerConfiguration config = new NetPeerConfiguration("game");
+            client = new NetClient(config);
+            
+            client.Start();
+
+            NetOutgoingMessage outmsg = client.CreateMessage();
+            outmsg.Write("Login message");
+  
+            NetConnection connection = client.Connect(hostIp, port, outmsg);
+
+            if (connection.Status != NetConnectionStatus.Connected)
+            {
+                // Wait, try again, if still not connected, exit
+            }
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
@@ -49,15 +70,37 @@ namespace BombermanClient
             manager.Initialize();
         }
 
+        private void WaitForStart()
+        {
+            bool startMessageRecieved = false;
+            NetIncomingMessage inc;
+
+            while(!startMessageRecieved)
+            {
+                if ((inc = client.ReadMessage()) != null)
+                {
+                    // If message is special message from server
+                        // gameStarted = true;
+                    // Else ignore
+                }
+            }
+        }
+
         protected override void Update(GameTime gameTime)
         {
+
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
+            if (!gameStarted && gameDrawn)
+            {
+                manager.Update(gameTime);
+                base.Update(gameTime);
+                WaitForStart();
+            }
             // TODO Update game logic
             manager.Update(gameTime);
-
             base.Update(gameTime);
+            gameDrawn = true;
         }
 
         protected override void Draw(GameTime gameTime)
