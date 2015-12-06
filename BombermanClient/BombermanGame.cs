@@ -36,10 +36,6 @@ namespace BombermanClient
   
             NetConnection connection = client.Connect(hostIp, port, outmsg);
 
-            if (connection.Status != NetConnectionStatus.Connected)
-            {
-                // Wait, try again, if still not connected, exit
-            }
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
