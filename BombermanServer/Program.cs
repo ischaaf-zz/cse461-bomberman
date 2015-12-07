@@ -13,6 +13,7 @@ namespace BombermanServer
             // command line: number of players?
             // create server with X players
             // server.start() starts accepting connections
+            //BombermanServer server = new BombermanServer();
         }
     }
 }

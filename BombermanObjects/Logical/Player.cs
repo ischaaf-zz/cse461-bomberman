@@ -32,6 +32,9 @@ namespace BombermanObjects.Logical
 
         public Direction MoveDirection { get; set; }
 
+        // added for server communication.
+        public ExternalOutput externalOutput { get; set; }
+
         public override Rectangle Position
         {
             get
@@ -107,8 +110,14 @@ namespace BombermanObjects.Logical
             }
         }
 
-        private bool move(Direction dir, int dist)
+        // changed to public from private for server use.
+        public bool move(Direction dir, int dist)
         {
+            // added for external communicaton
+            if (externalOutput != null)
+            {
+                externalOutput.sendMove(dir, dist);
+            }
             bool moved = false;
             Movement m = new Movement(dist, dir);
             var res = manager.collider.Move(this, m);
@@ -137,8 +146,14 @@ namespace BombermanObjects.Logical
             return moved;
         }
 
-        protected virtual void placeBomb(GameTime gameTime)
+        // changed to public from protected for server use.
+        public virtual void placeBomb(GameTime gameTime)
         {
+            // added for external communication
+            if (externalOutput != null)
+            {
+                externalOutput.sendBombPlacement(gameTime);
+            }
             int x = position.Center.X / position.Width;
             int y = position.Center.Y / position.Height;
             if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)))
