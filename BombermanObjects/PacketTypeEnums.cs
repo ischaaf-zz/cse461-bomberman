@@ -13,7 +13,8 @@ namespace BombermanObjects
             EVENT,
             GAME_STATE,
             GAME_STATE_FULL, 
-            SEND_PLAYER_ID
+            SEND_PLAYER_ID,
+            NEW_PLAYER_ID
             
         };
 
