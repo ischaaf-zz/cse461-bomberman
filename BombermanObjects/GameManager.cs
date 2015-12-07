@@ -50,6 +50,18 @@ namespace BombermanObjects
             TotalSpeed = 10;
         }
 
+        public Player AddPlayer(int number)
+        {
+            if (players[number - 1] == null)
+            {
+                players[number - 1] = new Player(this, STARTS[number - 1]);
+                return players[number - 1];
+            } else
+            {
+                return null;
+            }
+        }
+
         public virtual void Initialize()
         {
             for (int i = 0; i < players.Length; i++)
