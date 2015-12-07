@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 using BombermanObjects;
 using Microsoft.Xna.Framework;
+using System.Threading;
 
 namespace BombermanServer
 {
     public class BombermanServer
     {
-        public static readonly String LOGIN_MSG = "Login message";
+        public static readonly string LOGIN_MSG = "Login message";
         public static readonly int SERVER_PORT = 12346;
-        public Boolean gameActive;
+        public bool gameActive;
         GameManager manager;
         NetPeerConfiguration config;
         NetServer server;
@@ -31,7 +32,7 @@ namespace BombermanServer
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             server = new NetServer(config);
 
-            manager = new GameManager(players);
+            manager = new ServerGameManager(server, playerInfoArr, players);
             totalPlayers = players;
             playersConnected = 0;
             playerConnections = new NetConnection[players];
@@ -53,6 +54,7 @@ namespace BombermanServer
                     {
                         case NetIncomingMessageType.ConnectionApproval:
                             Console.WriteLine("approving incoming connection");
+                            Console.WriteLine($"Message Type: {message.SenderConnection.Status}");
                             message.SenderConnection.Approve();
                             var data = message.ReadString();
                             if (data.Equals(LOGIN_MSG))
@@ -67,7 +69,10 @@ namespace BombermanServer
                                 outmsg.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
                                 outmsg.WriteVariableInt32(playersConnected);
                                 // we don't want this to be lost, so set level to ReliableOrdered
+                                Console.WriteLine($"Connection Status: {playerConnection.Status}");
+                                Thread.Sleep(1000);
                                 server.SendMessage(outmsg, playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                server.FlushSendQueue();
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
                                 Console.WriteLine("assigning playerID: " + playersConnected);
                             }
@@ -94,12 +99,6 @@ namespace BombermanServer
 
                         case NetIncomingMessageType.StatusChanged:
                             // handle connection status messages
-                            switch (message.SenderConnection.Status)
-                            {
-                                case NetConnectionStatus.RespondedConnect:
-                                    message.SenderConnection.Approve();
-                                    break;
-                            }
                             break;
 
                         case NetIncomingMessageType.DebugMessage:

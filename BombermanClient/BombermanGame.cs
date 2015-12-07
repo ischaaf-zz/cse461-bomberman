@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Lidgren.Network;
+using System.Threading;
 
 namespace BombermanClient
 {
@@ -35,13 +36,35 @@ namespace BombermanClient
             
   
             NetConnection connection = client.Connect(hostIp, port, outmsg);
-
-            NetOutgoingMessage data = client.CreateMessage();
-            data.Write("Login message");
-
-
-            client.SendMessage(data, connection, NetDeliveryMethod.ReliableOrdered);
-            
+            Thread.Sleep(2000);
+            bool awaitingAssignment = true;
+            while (awaitingAssignment)
+            {
+                NetIncomingMessage inc;
+                if ((inc = client.ReadMessage()) != null)
+                {
+                    switch (inc.MessageType)
+                    {
+                        case NetIncomingMessageType.Data:
+                            int sid = inc.ReadVariableInt32();
+                            PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
+                            Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
+                            if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
+                            {
+                                playerId = inc.ReadVariableInt32();
+                                Console.WriteLine($"Assigned player: {playerId}");
+                            }
+                            awaitingAssignment = false;
+                            break;
+                        case NetIncomingMessageType.StatusChanged:
+                            
+                            break;
+                        default:
+                            Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                            break;
+                    }
+                }
+            }
 
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -73,11 +96,6 @@ namespace BombermanClient
             manager.Initialize();
         }
 
-        private void WaitForStart()
-        {
-
-        }
-
         protected override void Update(GameTime gameTime)
         {
 
@@ -90,9 +108,23 @@ namespace BombermanClient
             {
                 if ((inc = client.ReadMessage()) != null)
                 {
-                    // If message is special message from server
-                    // gameStarted = true;
-                    // Else ignore
+                    switch (inc.MessageType)
+                    {
+                        case NetIncomingMessageType.Data:
+
+                            break;
+                        default:
+                            int sid = inc.ReadVariableInt32();
+                            PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
+                            Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
+                            if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
+                            {
+                                playerId = inc.ReadVariableInt32();
+                                Console.WriteLine($"Assigned player: {playerId}");
+                            }
+                            //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                            break;
+                    }
                 }
             } else
             {
