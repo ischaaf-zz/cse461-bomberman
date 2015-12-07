@@ -20,12 +20,10 @@ namespace BombermanClient
 
         NetClient client;
         private bool gameStarted;
-        private bool gameDrawn;
 
         public BombermanGame(String hostIp, int port) : base()
         {
             gameStarted = false;
-            gameDrawn = false;
             NetPeerConfiguration config = new NetPeerConfiguration("game");
             client = new NetClient(config);
             
@@ -68,18 +66,7 @@ namespace BombermanClient
 
         private void WaitForStart()
         {
-            bool startMessageRecieved = false;
-            NetIncomingMessage inc;
 
-            while(!startMessageRecieved)
-            {
-                if ((inc = client.ReadMessage()) != null)
-                {
-                    // If message is special message from server
-                        // gameStarted = true;
-                    // Else ignore
-                }
-            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -87,16 +74,23 @@ namespace BombermanClient
 
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            if (!gameStarted && gameDrawn)
+
+            NetIncomingMessage inc;
+
+            if (!gameStarted)
+            {
+                if ((inc = client.ReadMessage()) != null)
+                {
+                    // If message is special message from server
+                    // gameStarted = true;
+                    // Else ignore
+                }
+            } else
             {
                 manager.Update(gameTime);
-                base.Update(gameTime);
-                WaitForStart();
             }
             // TODO Update game logic
-            manager.Update(gameTime);
             base.Update(gameTime);
-            gameDrawn = true;
         }
 
         protected override void Draw(GameTime gameTime)
