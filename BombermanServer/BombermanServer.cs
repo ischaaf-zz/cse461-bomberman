@@ -28,7 +28,7 @@ namespace BombermanServer
             gameActive = false;
             config = new NetPeerConfiguration("game");
             config.Port = SERVER_PORT;
-
+            config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             server = new NetServer(config);
 
             manager = new GameManager(players);
@@ -41,16 +41,19 @@ namespace BombermanServer
         public void Start()
         {
             server.Start();
+            Console.WriteLine("waiting for client connections");
             while (!gameActive)
             {
+                
                 //server.GetConnection
                 NetIncomingMessage message;
                 while ((message = server.ReadMessage()) != null && !gameActive)
                 {
                     switch (message.MessageType)
                     {
-                        case NetIncomingMessageType.Data:
-                            // handle custom messages
+                        case NetIncomingMessageType.ConnectionApproval:
+                            Console.WriteLine("approving incoming connection");
+                            message.SenderConnection.Approve();
                             var data = message.ReadString();
                             if (data.Equals(LOGIN_MSG))
                             {
@@ -59,11 +62,32 @@ namespace BombermanServer
                                 playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection, playersConnected, playerConnection.AverageRoundtripTime);
 
                                 NetOutgoingMessage outmsg = server.CreateMessage();
+                                // senderID, PacketType, ID 
+                                outmsg.WriteVariableInt32(0);
                                 outmsg.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
                                 outmsg.WriteVariableInt32(playersConnected);
                                 // we don't want this to be lost, so set level to ReliableOrdered
                                 server.SendMessage(outmsg, playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
+                                Console.WriteLine("assigning playerID: " + playersConnected);
+                            }
+                            break;
+
+                        case NetIncomingMessageType.Data:
+                            // handle custom messages
+                            var data2 = message.ReadString();
+                            if (data2.Equals(LOGIN_MSG))
+                            {
+                                playersConnected++;
+                                NetConnection playerConnection2 = message.SenderConnection;
+                                playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection2, playersConnected, playerConnection2.AverageRoundtripTime);
+
+                                NetOutgoingMessage outmsg2 = server.CreateMessage();
+                                outmsg2.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
+                                outmsg2.WriteVariableInt32(playersConnected);
+                                // we don't want this to be lost, so set level to ReliableOrdered
+                                server.SendMessage(outmsg2, playerConnection2, NetDeliveryMethod.ReliableOrdered, 0);
+                                Console.WriteLine("accepted Connection from: " + playerConnection2);
                                 Console.WriteLine("assigning playerID: " + playersConnected);
                             }
                             break;
@@ -88,6 +112,7 @@ namespace BombermanServer
                         default:
                             Console.WriteLine("unhandled message with type: "
                                 + message.MessageType);
+                            Console.WriteLine(message.ReadString());
                             break;
                     }
                     if (playersConnected >= totalPlayers)
@@ -103,8 +128,11 @@ namespace BombermanServer
                 {
                     switch (inc.MessageType)
                     {
+                        
+
                         case NetIncomingMessageType.Data:
                             // handle custom messages
+                            Console.WriteLine("incoming data");
                             int senderID = inc.ReadByte();
                             if (senderID <= 0 || senderID > playersConnected)
                             {
@@ -123,9 +151,10 @@ namespace BombermanServer
 
                         case NetIncomingMessageType.StatusChanged:
                             // handle connection status messages
+                            Console.WriteLine("status change");
                             switch (inc.SenderConnection.Status)
                             {
-
+                                
                             }
                             break;
 
