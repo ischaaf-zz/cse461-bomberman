@@ -17,11 +17,12 @@ namespace BombermanClient
         protected GraphicsDeviceManager graphics;
         protected SpriteBatch spritebatch;
         protected GraphicalGameManager manager;
+        protected int playerId;
 
         NetClient client;
         private bool gameStarted;
 
-        public BombermanGame(String hostIp, int port) : base()
+        public BombermanGame(string hostIp, int port) : base()
         {
             gameStarted = false;
             NetPeerConfiguration config = new NetPeerConfiguration("game");
@@ -31,8 +32,16 @@ namespace BombermanClient
 
             NetOutgoingMessage outmsg = client.CreateMessage();
             outmsg.Write("Login message");
+            
   
             NetConnection connection = client.Connect(hostIp, port, outmsg);
+
+            NetOutgoingMessage data = client.CreateMessage();
+            data.Write("Login message");
+
+
+            client.SendMessage(data, connection, NetDeliveryMethod.ReliableOrdered);
+            
 
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";

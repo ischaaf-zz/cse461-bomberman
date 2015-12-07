@@ -72,7 +72,9 @@ namespace BombermanServer
                             // handle connection status messages
                             switch (message.SenderConnection.Status)
                             {
-                                /* .. */
+                                case NetConnectionStatus.RespondedConnect:
+                                    message.SenderConnection.Approve();
+                                    break;
                             }
                             break;
 
@@ -123,7 +125,7 @@ namespace BombermanServer
                             // handle connection status messages
                             switch (inc.SenderConnection.Status)
                             {
-                                /* .. */
+
                             }
                             break;
 

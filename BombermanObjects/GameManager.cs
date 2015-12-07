@@ -16,9 +16,9 @@ namespace BombermanObjects
         public static readonly int BOX_WIDTH = 64;
         public static readonly Rectangle[] STARTS = {
             new Rectangle(64, 64, 64, 64),
-            new Rectangle(64, 64, 64, 64),
-            new Rectangle(64, 64, 64, 64),
-            new Rectangle(64, 64, 64, 64)
+            new Rectangle(11*64, 11*64, 64, 64),
+            new Rectangle(11*64, 64, 64, 64),
+            new Rectangle(64, 11*64, 64, 64)
         };
 
         public ICollider collider;
@@ -95,7 +95,10 @@ namespace BombermanObjects
 
             foreach (var p in players)
             {
-                p.Update(gametime, input.CurrentInput);
+                if (p != null)
+                {
+                    p.Update(gametime, input.CurrentInput);
+                }
             }
 
             foreach (var b in bombs)

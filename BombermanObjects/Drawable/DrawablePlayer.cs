@@ -81,7 +81,7 @@ namespace BombermanObjects.Drawable
             spritebatch.Draw(texture, Position, textureRect, c);
         }
 
-        protected override void placeBomb(GameTime gameTime)
+        public override void placeBomb(GameTime gameTime)
         {
             int x = Position.Center.X / Position.Width;
             int y = Position.Center.Y / Position.Height;

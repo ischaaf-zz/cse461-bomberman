@@ -107,7 +107,7 @@ namespace BombermanObjects
             }
             foreach (var p in players)
             {
-                (p as Drawable.IDrawable).Draw(spritebatch, gameTime);
+                (p as Drawable.IDrawable)?.Draw(spritebatch, gameTime);
             }
         }
 

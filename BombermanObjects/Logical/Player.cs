@@ -55,6 +55,7 @@ namespace BombermanObjects.Logical
             BombPower = 2;
             PlacedBombs = 0;
             CanKick = false;
+            MoveDirection = Direction.Center;
         }
 
         public void Update(GameTime gametime, PlayerInput input)
