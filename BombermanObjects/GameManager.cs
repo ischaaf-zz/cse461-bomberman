@@ -26,7 +26,8 @@ namespace BombermanObjects
         public SingleGridObjectCollection bombs;
         public GridObjectCollection explosions;
         public SingleGridObjectCollection powerUps;
-        protected Player[] players;
+        // changed players to public for server use from protected
+        public Player[] players;
         protected LocalInput input;
 
         public int TotalBombCap { get; set; }
