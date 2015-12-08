@@ -14,7 +14,7 @@ namespace BombermanObjects
         List<Box> destroyedBoxList;
         List<PowerUp> powerupList;
 
-        public GameState(List<Bomb> bombList, )
+        public GameState(List<Bomb> bombList, Player[] players, List<Box> destroyedBoxList, List<PowerUp> powerupList)
         {
 
         }
