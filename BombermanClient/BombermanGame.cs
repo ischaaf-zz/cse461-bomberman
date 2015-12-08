@@ -69,7 +69,10 @@ namespace BombermanClient
                             if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
                             {
                                 playerId = inc.ReadVariableInt32();
-                                manager.AddPlayer(playerId);
+                                for (int i = 1; i <= playerId; i++)
+                                {
+                                    manager.AddPlayer(i);
+                                }
                                 Console.WriteLine($"Assigned player: {playerId}");
                             }
                             awaitingAssignment = false;
@@ -118,21 +121,23 @@ namespace BombermanClient
                     switch (inc.MessageType)
                     {
                         case NetIncomingMessageType.Data:
-
-                            break;
-                        default:
                             int sid = inc.ReadVariableInt32();
                             PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
                             Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
                             if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
                             {
                                 playerId = inc.ReadVariableInt32();
+
                                 Console.WriteLine($"Assigned player: {playerId}");
-                            } else if (type == PacketTypeEnums.PacketType.NEW_PLAYER_ID)
+                            }
+                            else if (type == PacketTypeEnums.PacketType.NEW_PLAYER_ID)
                             {
                                 manager.AddPlayer(inc.ReadVariableInt32());
                             }
                             //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                            break;
+                        default:
+                            Console.WriteLine("Default case");
                             break;
                     }
                 }
