@@ -43,5 +43,15 @@ namespace BombermanServer
 
             return outmsg;
         }
+
+        public NetOutgoingMessage GetFullGameState()
+        {
+            NetOutgoingMessage outmsg = server.CreateMessage();
+            outmsg.WriteVariableInt32(0);
+            outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
+            outmsg.WriteAllFields((GameManager)this);
+            return outmsg;
+
+        }
     }
 }

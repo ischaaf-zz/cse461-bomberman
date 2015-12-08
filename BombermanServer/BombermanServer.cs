@@ -15,7 +15,7 @@ namespace BombermanServer
         public static readonly string LOGIN_MSG = "Login message";
         public static readonly int SERVER_PORT = 12346;
         public bool gameActive;
-        GameManager manager;
+        ServerGameManager manager;
         NetPeerConfiguration config;
         NetServer server;
         int totalPlayers;
@@ -72,6 +72,7 @@ namespace BombermanServer
                                 Console.WriteLine($"Connection Status: {playerConnection.Status}");
                                 Thread.Sleep(1000);
                                 server.SendMessage(outmsg, playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                server.SendMessage(manager.GetFullGameState(), playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 server.FlushSendQueue();
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
                                 Console.WriteLine("assigning playerID: " + playersConnected);
@@ -80,7 +81,10 @@ namespace BombermanServer
                                 for (int i = 0; i < playersConnected - 1; i++)
                                 {
                                     NetOutgoingMessage newPlayerMsg = server.CreateMessage();
-                                    newPlayerMsg.
+                                    newPlayerMsg.WriteVariableInt32(0);
+                                    newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.NEW_PLAYER_ID);
+                                    newPlayerMsg.WriteVariableInt32(playersConnected);
+                                    server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 }
                             }
                             break;

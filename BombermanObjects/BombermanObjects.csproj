@@ -88,6 +88,7 @@
     <Compile Include="Drawable\DrawablePowerUp.cs" />
     <Compile Include="ExternalOutput.cs" />
     <Compile Include="GameManager.cs" />
+    <Compile Include="GameState.cs" />
     <Compile Include="GraphicalGameManager.cs" />
     <Compile Include="LocalInput.cs" />
     <Compile Include="Logical\AbstractGameObject.cs" />
