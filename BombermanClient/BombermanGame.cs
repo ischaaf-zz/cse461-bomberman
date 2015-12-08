@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Lidgren.Network;
 using System.Threading;
+using BombermanObjects.Logical;
 
 namespace BombermanClient
 {
@@ -103,7 +104,7 @@ namespace BombermanClient
             textureMap["box"] = Content.Load<Texture2D>("box");
             textureMap["powerups"] = Content.Load<Texture2D>("powerups");
             manager = new GraphicalGameManager(4, textureMap);
-            manager.Initialize();
+            manager.InitializeBare();
         }
 
         protected override void Update(GameTime gameTime)
@@ -113,35 +114,54 @@ namespace BombermanClient
                 Exit();
 
             NetIncomingMessage inc;
-
-            if (!gameStarted)
+            if ((inc = client.ReadMessage()) != null)
             {
-                if ((inc = client.ReadMessage()) != null)
+                switch (inc.MessageType)
                 {
-                    switch (inc.MessageType)
-                    {
-                        case NetIncomingMessageType.Data:
-                            int sid = inc.ReadVariableInt32();
-                            PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
-                            Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
-                            if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
-                            {
-                                playerId = inc.ReadVariableInt32();
+                    case NetIncomingMessageType.Data:
+                        int sid = inc.ReadVariableInt32();
+                        PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
+                        Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
 
-                                Console.WriteLine($"Assigned player: {playerId}");
-                            }
-                            else if (type == PacketTypeEnums.PacketType.NEW_PLAYER_ID)
-                            {
+                        switch (type)
+                        {
+                            case PacketTypeEnums.PacketType.SEND_PLAYER_ID:
+                                Console.WriteLine("ID has already been assigned");
+                                break;
+                            case PacketTypeEnums.PacketType.NEW_PLAYER_ID:
                                 manager.AddPlayer(inc.ReadVariableInt32());
-                            }
-                            //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
-                            break;
-                        default:
-                            Console.WriteLine("Default case");
-                            break;
-                    }
+                                break;
+                            case PacketTypeEnums.PacketType.EVENT:
+                                break;
+                            case PacketTypeEnums.PacketType.GAME_STATE:
+                                break;
+                            case PacketTypeEnums.PacketType.GAME_STATE_FULL:
+                                
+
+                                while (inc.PeekByte() != (byte)0xff)
+                                {
+                                    byte x = inc.ReadByte();
+                                    byte y = inc.ReadByte();
+                                    PowerUp.PowerUpType powerup = (PowerUp.PowerUpType)inc.ReadByte();
+                                    manager.PlaceBox(x, y, powerup);
+                                }
+                                
+                                
+                                break;
+                            default:
+                                break;
+                        }
+
+                        //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                        break;
+                    default:
+                        Console.WriteLine("Default case");
+                        break;
                 }
-            } else
+            }
+
+
+            if (gameStarted)
             {
                 manager.Update(gameTime);
             }
