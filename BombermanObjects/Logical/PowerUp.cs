@@ -11,7 +11,7 @@ namespace BombermanObjects.Logical
     {
         public enum PowerUpType
         {
-            Speed, BombCap, BombPower
+            None, Speed, BombCap, BombPower
         }
 
         protected int xPos;
