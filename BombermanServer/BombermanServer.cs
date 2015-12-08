@@ -72,6 +72,7 @@ namespace BombermanServer
                                 Console.WriteLine($"Connection Status: {playerConnection.Status}");
                                 Thread.Sleep(1000);
                                 server.SendMessage(outmsg, playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                Thread.Sleep(2000);
                                 server.SendMessage(manager.GetFullGameState(), playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 server.FlushSendQueue();
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
