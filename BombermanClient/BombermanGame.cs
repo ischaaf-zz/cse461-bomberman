@@ -53,6 +53,9 @@ namespace BombermanClient
                             {
                                 playerId = inc.ReadVariableInt32();
                                 Console.WriteLine($"Assigned player: {playerId}");
+                            } else if (type == PacketTypeEnums.PacketType.NEW_PLAYER_ID)
+                            {
+                                manager.AddPlayer(inc.ReadVariableInt32());
                             }
                             awaitingAssignment = false;
                             break;
