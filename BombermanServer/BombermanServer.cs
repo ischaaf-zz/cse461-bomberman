@@ -77,9 +77,10 @@ namespace BombermanServer
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
                                 Console.WriteLine("assigning playerID: " + playersConnected);
 
-                                Console.WriteLine("Broadcasting to connected players that new player has connected");
+                                
                                 for (int i = 0; i < playersConnected - 1; i++)
                                 {
+                                    Console.WriteLine($"Broadcasting to connected player {i} that new player {playersConnected} has connected");
                                     NetOutgoingMessage newPlayerMsg = server.CreateMessage();
                                     newPlayerMsg.WriteVariableInt32(0);
                                     newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.NEW_PLAYER_ID);
