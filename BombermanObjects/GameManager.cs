@@ -69,24 +69,7 @@ namespace BombermanObjects
 
         public virtual void Initialize()
         {
-            //for (int i = 0; i < players.Length; i++)
-            //{
-            //    players[i] = CreatePlayer(STARTS[i], COLORS[i]);
-            //}
-            background = CreateBackground();
-
-            for (int i = 0; i < GAME_SIZE; i++)
-            {
-                for (int j = 0; j < GAME_SIZE; j++)
-                {
-                    if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
-                    {
-                        AbstractGameObject wall = CreateWall(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, null);
-                        statics.Add(wall);
-                        collider.RegisterStatic(wall);
-                    }
-                }
-            }
+            InitializeBare();
             List<Box> boxes = new List<Box>();
             HashSet<Point> avoid = new HashSet<Point>() {
                 new Point(1, 1), new Point(1, 2), new Point(2, 1), new Point(11, 1), new Point(10, 1), new Point(11, 2),
@@ -126,9 +109,40 @@ namespace BombermanObjects
             }
         }
 
-        public virtual void Initialize(object state)
+        public virtual void InitializeBare()
         {
+            background = CreateBackground();
 
+            for (int i = 0; i < GAME_SIZE; i++)
+            {
+                for (int j = 0; j < GAME_SIZE; j++)
+                {
+                    if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
+                    {
+                        AbstractGameObject wall = CreateWall(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, null);
+                        statics.Add(wall);
+                        collider.RegisterStatic(wall);
+                    }
+                }
+            }
+        }
+
+        public void PlaceBox(int x, int y, PowerUp.PowerUpType type)
+        {
+            PowerUp p;
+            if (type == PowerUp.PowerUpType.None)
+            {
+                p = null;
+            } else
+            {
+                p = CreatePowerUp(type, x, y);
+            }
+            Box b = CreateBox(x, y, p);
+            if (!statics.IsItemAtPoint(new Point(x, y)))
+            {
+                statics.Add(b);
+                collider.RegisterStatic(b);
+            }
         }
 
         #region Create Objects
