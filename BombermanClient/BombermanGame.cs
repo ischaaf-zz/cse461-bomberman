@@ -22,20 +22,37 @@ namespace BombermanClient
 
         NetClient client;
         private bool gameStarted;
+        private string hostIP { get; set; }
+        private int port { get; set; }
 
         public BombermanGame(string hostIp, int port) : base()
         {
+            hostIP = hostIp;
+            this.port = port;
+
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;   // set this value to the desired height of your window
+            graphics.ApplyChanges();
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            this.Window.AllowUserResizing = false;
+
             gameStarted = false;
             NetPeerConfiguration config = new NetPeerConfiguration("game");
             client = new NetClient(config);
-            
+
             client.Start();
 
             NetOutgoingMessage outmsg = client.CreateMessage();
             outmsg.Write("Login message");
-            
-  
-            NetConnection connection = client.Connect(hostIp, port, outmsg);
+
+
+            NetConnection connection = client.Connect(hostIP, port, outmsg);
             Thread.Sleep(2000);
             bool awaitingAssignment = true;
             while (awaitingAssignment)
@@ -57,7 +74,7 @@ namespace BombermanClient
                             awaitingAssignment = false;
                             break;
                         case NetIncomingMessageType.StatusChanged:
-                            
+
                             break;
                         default:
                             Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
@@ -66,17 +83,6 @@ namespace BombermanClient
                 }
             }
 
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
-            graphics.PreferredBackBufferHeight = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;   // set this value to the desired height of your window
-            graphics.ApplyChanges();
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            this.Window.AllowUserResizing = false;
         }
 
         protected override void LoadContent()
@@ -92,7 +98,7 @@ namespace BombermanClient
             textureMap["explosion"] = Content.Load<Texture2D>("explosion");
             textureMap["box"] = Content.Load<Texture2D>("box");
             textureMap["powerups"] = Content.Load<Texture2D>("powerups");
-            manager = new GraphicalGameManager(1, textureMap);
+            manager = new GraphicalGameManager(4, textureMap);
             manager.Initialize();
         }
 
