@@ -64,7 +64,7 @@ namespace BombermanServer
                                 playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection, playersConnected, playerConnection.AverageRoundtripTime);
 
                                 NetOutgoingMessage outmsg = server.CreateMessage();
-                                // senderID, PacketType, ID 
+                                // senderID, PacketType, ID
                                 outmsg.WriteVariableInt32(0);
                                 outmsg.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
                                 outmsg.WriteVariableInt32(playersConnected);
@@ -75,26 +75,33 @@ namespace BombermanServer
                                 server.FlushSendQueue();
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
                                 Console.WriteLine("assigning playerID: " + playersConnected);
+
+                                Console.WriteLine("Broadcasting to connected players that new player has connected");
+                                for (int i = 0; i < playersConnected - 1; i++)
+                                {
+                                    NetOutgoingMessage newPlayerMsg = server.CreateMessage();
+                                    newPlayerMsg.
+                                }
                             }
                             break;
 
                         case NetIncomingMessageType.Data:
                             // handle custom messages
-                            var data2 = message.ReadString();
-                            if (data2.Equals(LOGIN_MSG))
-                            {
-                                playersConnected++;
-                                NetConnection playerConnection2 = message.SenderConnection;
-                                playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection2, playersConnected, playerConnection2.AverageRoundtripTime);
+                            //var data2 = message.ReadString();
+                            //if (data2.Equals(LOGIN_MSG))
+                            //{
+                            //    playersConnected++;
+                            //    NetConnection playerConnection2 = message.SenderConnection;
+                            //    playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection2, playersConnected, playerConnection2.AverageRoundtripTime);
 
-                                NetOutgoingMessage outmsg2 = server.CreateMessage();
-                                outmsg2.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
-                                outmsg2.WriteVariableInt32(playersConnected);
-                                // we don't want this to be lost, so set level to ReliableOrdered
-                                server.SendMessage(outmsg2, playerConnection2, NetDeliveryMethod.ReliableOrdered, 0);
-                                Console.WriteLine("accepted Connection from: " + playerConnection2);
-                                Console.WriteLine("assigning playerID: " + playersConnected);
-                            }
+                            //    NetOutgoingMessage outmsg2 = server.CreateMessage();
+                            //    outmsg2.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
+                            //    outmsg2.WriteVariableInt32(playersConnected);
+                            //    // we don't want this to be lost, so set level to ReliableOrdered
+                            //    server.SendMessage(outmsg2, playerConnection2, NetDeliveryMethod.ReliableOrdered, 0);
+                            //    Console.WriteLine("accepted Connection from: " + playerConnection2);
+                            //    Console.WriteLine("assigning playerID: " + playersConnected);
+                            //}
                             break;
 
                         case NetIncomingMessageType.StatusChanged:
