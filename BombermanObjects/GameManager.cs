@@ -59,7 +59,7 @@ namespace BombermanObjects
         {
             if (players[number - 1] == null)
             {
-                players[number - 1] = new Player(this, STARTS[number - 1]);
+                players[number - 1] = CreatePlayer(STARTS[number - 1], COLORS[number - 1]);
                 return players[number - 1];
             } else
             {
@@ -69,10 +69,10 @@ namespace BombermanObjects
 
         public virtual void Initialize()
         {
-            for (int i = 0; i < players.Length; i++)
-            {
-                players[i] = CreatePlayer(STARTS[i], COLORS[i]);
-            }
+            //for (int i = 0; i < players.Length; i++)
+            //{
+            //    players[i] = CreatePlayer(STARTS[i], COLORS[i]);
+            //}
             background = CreateBackground();
 
             for (int i = 0; i < GAME_SIZE; i++)
@@ -124,6 +124,11 @@ namespace BombermanObjects
                 boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.Speed, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
                 index++;
             }
+        }
+
+        public virtual void Initialize(object state)
+        {
+
         }
 
         #region Create Objects
