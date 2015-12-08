@@ -33,6 +33,7 @@ namespace BombermanServer
             server = new NetServer(config);
 
             manager = new ServerGameManager(server, playerInfoArr, players);
+            manager.Initialize();
             totalPlayers = players;
             playersConnected = 0;
             playerConnections = new NetConnection[players];
