@@ -49,7 +49,7 @@ namespace BombermanServer
             NetOutgoingMessage outmsg = server.CreateMessage();
             outmsg.WriteVariableInt32(0);
             outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
-            outmsg.WriteAllFields((GameManager)this);
+            outmsg.WriteAllProperties((GameManager)this);
             return outmsg;
 
         }

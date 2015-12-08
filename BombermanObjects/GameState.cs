@@ -9,12 +9,12 @@ namespace BombermanObjects
 {
     public class GameState
     {
-        List<Bomb> bombList;
         Player[] players;
+        List<Bomb> bombList;
         List<Box> destroyedBoxList;
         List<PowerUp> powerupList;
 
-        public GameState(List<Bomb> bombList, Player[] players, List<Box> destroyedBoxList, List<PowerUp> powerupList)
+        public GameState(Player[] players, List<Bomb> bombList, List<Box> destroyedBoxList, List<PowerUp> powerupList)
         {
 
         }
