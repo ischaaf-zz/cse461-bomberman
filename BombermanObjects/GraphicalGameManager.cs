@@ -12,9 +12,6 @@ namespace BombermanObjects
 {
     public class GraphicalGameManager : GameManager
     {
-
-        public DrawableWall background;
-
         public Dictionary<string, Texture2D> textures;
 
         public GraphicalGameManager(int players, Dictionary<string, Texture2D> textureMappings) : base(players)
@@ -22,72 +19,44 @@ namespace BombermanObjects
             textures = textureMappings;
         }
 
-        public override void Initialize()
+        public override Wall CreateBackground()
         {
-            for (int i = 0; i < players.Length; i++)
-            {
-                players[i] = new DrawablePlayer(this, STARTS[i], textures["player"]);
-            }
-            background = new DrawableWall(this, textures["background"], new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE), null);
+            return new DrawableWall(this, textures["background"], new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE), null);
+        }
 
-            for (int i = 0; i < GAME_SIZE; i++)
-            {
-                for (int j = 0; j < GAME_SIZE; j++)
-                {
-                    if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
-                    {
-                        AbstractGameObject wall = new DrawableWall(this, textures["wall"], new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH), null);
-                        statics.Add(wall);
-                        collider.RegisterStatic(wall);
-                    }
-                }
-            }
-            List<Box> boxes = new List<Box>();
-            HashSet<Point> avoid = new HashSet<Point>() {
-                new Point(1, 1), new Point(1, 2), new Point(2, 1), new Point(11, 1), new Point(10, 1), new Point(11, 2),
-                new Point(1, 11), new Point(1, 10), new Point(2, 11), new Point(11, 11), new Point(10, 11), new Point(11, 10)
-            };
-            for (int i = 1; i < GAME_SIZE - 1; i++)
-            {
-                for (int j = 1; j < GAME_SIZE - 1; j++)
-                {
-                    if (statics.IsItemAtPoint(new Point(i, j)))
-                        continue;
-                    if (avoid.Contains(new Point(i, j)))
-                        continue;
-                    DrawableBox box = new DrawableBox(this, i, j, null, textures["box"]);
-                    statics.Add(box);
-                    collider.RegisterStatic(box);
-                    boxes.Add(box);
-                }
-            }
-            Random rand = new Random();
-            boxes.Shuffle();
-            int index = 0;
-            for (int i = 0; i < TotalBombCap; i++)
-            {
-                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.BombCap, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
-                index++;
-            }
-            for (int i = 0; i < TotalBombPow; i++)
-            {
-                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.BombPower, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
-                index++;
-            }
-            for (int i = 0; i < TotalSpeed; i++)
-            {
-                boxes[index].PowerUp = new DrawablePowerUp(this, PowerUp.PowerUpType.Speed, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y, textures["powerups"]); ;
-                index++;
-            }
-            //foreach (var b in boxes)
-            //{
-            //    b.Destroy();
-            //}
+        public override Wall CreateWall(int x, int y, int dim, Rectangle? textureRect)
+        {
+            return new DrawableWall(this, textures["wall"], new Rectangle(x, y, dim, dim), textureRect);
+        }
+
+        public override Player CreatePlayer(Rectangle pos, Color? c)
+        {
+            return new DrawablePlayer(this, pos, textures["player"], c.Value);
+        }
+
+        public override Box CreateBox(int x, int y, PowerUp p)
+        {
+            return new DrawableBox(this, x, y, p, textures["box"]);
+        }
+
+        public override PowerUp CreatePowerUp(PowerUp.PowerUpType type, int x, int y)
+        {
+            return new DrawablePowerUp(this, type, x, y, textures["powerups"]);
+        }
+
+        public override Explosion CreateExplosion(int x, int y, int dim, TimeSpan startedAt)
+        {
+            return new DrawableExplosion(this, x, y, dim, startedAt, textures["explosion"]);
+        }
+
+        public override Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim)
+        {
+            return new DrawableBomb(this, x, y, placed, ttd, placedBy, dim, textures["bomb"]);
         }
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
-            background.Draw(spritebatch, gameTime);
+            (background as Drawable.IDrawable).Draw(spritebatch, gameTime);
 
             foreach (var item in statics)
             {

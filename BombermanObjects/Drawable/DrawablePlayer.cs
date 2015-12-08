@@ -23,12 +23,14 @@ namespace BombermanObjects.Drawable
         private Direction lastDirection;
         private int spriteIndex;
         private TimeSpan lastTime;
+        private Color filter;
 
-        public DrawablePlayer(GameManager m, Rectangle pos, Texture2D tex) : base(m, pos)
+        public DrawablePlayer(GameManager m, Rectangle pos, Texture2D tex, Color filter) : base(m, pos)
         {
             texture = tex;
             lastDirection = Direction.Center;
             lastTime = new TimeSpan();
+            this.filter = filter;
         }
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
@@ -75,9 +77,9 @@ namespace BombermanObjects.Drawable
             }
             lastDirection = MoveDirection;
             Rectangle textureRect = new Rectangle(m.X * 80 + 8, m.Y * 80 + 8, 64, 64);
-            Color c = Color.White;
+            Color c = filter;
             if (gameTime.TotalGameTime < ImmuneTill)
-                c = new Color(Color.White, 127);
+                c = new Color(c, 127);
             spritebatch.Draw(texture, Position, textureRect, c);
         }
 

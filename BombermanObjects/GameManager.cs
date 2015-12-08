@@ -2,6 +2,7 @@
 using BombermanObjects.Collision;
 using BombermanObjects.Logical;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace BombermanObjects
 {
     public class GameManager
     {
+        public static readonly Color[] COLORS = { Color.Blue, Color.LightBlue, Color.LightSalmon, Color.White };
         public static readonly int GAME_SIZE = 13;
         public static readonly int BOX_WIDTH = 64;
         public static readonly Rectangle[] STARTS = {
@@ -30,10 +32,13 @@ namespace BombermanObjects
         public Player[] players;
         protected LocalInput input;
 
+        public Wall background;
+
         public int TotalBombCap { get; set; }
         public int TotalBombPow { get; set; }
         public int TotalSpeed { get; set; }
 
+        public List<Box> DestroyedBoxes { get; set; }
 
         public GameManager(int players)
         {
@@ -66,10 +71,9 @@ namespace BombermanObjects
         {
             for (int i = 0; i < players.Length; i++)
             {
-                players[i] = new Player(this, STARTS[i]);
+                players[i] = CreatePlayer(STARTS[i], COLORS[i]);
             }
-            AbstractGameObject background = new Wall(this, new Rectangle(0, 0, BOX_WIDTH * GAME_SIZE, BOX_WIDTH * GAME_SIZE));
-            statics.Add(background);
+            background = CreateBackground();
 
             for (int i = 0; i < GAME_SIZE; i++)
             {
@@ -77,13 +81,89 @@ namespace BombermanObjects
                 {
                     if (i == 0 || j == 0 || i == GAME_SIZE - 1 || j == GAME_SIZE - 1 || (i % 2 == 0 && j % 2 == 0))
                     {
-                        AbstractGameObject wall = new Wall(this, new Rectangle(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, BOX_WIDTH));
+                        AbstractGameObject wall = CreateWall(i * BOX_WIDTH, j * BOX_WIDTH, BOX_WIDTH, null);
                         statics.Add(wall);
                         collider.RegisterStatic(wall);
                     }
                 }
             }
+            List<Box> boxes = new List<Box>();
+            HashSet<Point> avoid = new HashSet<Point>() {
+                new Point(1, 1), new Point(1, 2), new Point(2, 1), new Point(11, 1), new Point(10, 1), new Point(11, 2),
+                new Point(1, 11), new Point(1, 10), new Point(2, 11), new Point(11, 11), new Point(10, 11), new Point(11, 10)
+            };
+            for (int i = 1; i < GAME_SIZE - 1; i++)
+            {
+                for (int j = 1; j < GAME_SIZE - 1; j++)
+                {
+                    if (statics.IsItemAtPoint(new Point(i, j)))
+                        continue;
+                    if (avoid.Contains(new Point(i, j)))
+                        continue;
+                    Box box = CreateBox(i, j, null);
+                    statics.Add(box);
+                    collider.RegisterStatic(box);
+                    boxes.Add(box);
+                }
+            }
+            Random rand = new Random();
+            boxes.Shuffle();
+            int index = 0;
+            for (int i = 0; i < TotalBombCap; i++)
+            {
+                boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.BombCap, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
+                index++;
+            }
+            for (int i = 0; i < TotalBombPow; i++)
+            {
+                boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.BombPower, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
+                index++;
+            }
+            for (int i = 0; i < TotalSpeed; i++)
+            {
+                boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.Speed, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
+                index++;
+            }
         }
+
+        #region Create Objects
+
+        public virtual Wall CreateBackground()
+        {
+            return null;
+        }
+
+        public virtual Wall CreateWall(int x, int y, int dim, Rectangle? textureRect)
+        {
+            return new Wall(this, new Rectangle(x, y, dim, dim));
+        }
+
+        public virtual Player CreatePlayer(Rectangle pos, Color? c)
+        {
+            return new Player(this, pos);
+        }
+
+        public virtual Box CreateBox(int x, int y, PowerUp p)
+        {
+            return new Box(this, x, y, p);
+        }
+
+        public virtual PowerUp CreatePowerUp(PowerUp.PowerUpType type, int x, int y)
+        {
+            return new PowerUp(this, type, x, y);
+        }
+
+        public virtual Explosion CreateExplosion(int x, int y, int dim, TimeSpan startedAt)
+        {
+            return new Explosion(this, x, y, dim, startedAt);
+        }
+
+        public virtual Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim)
+        {
+            return new Bomb(this, x, y, placed, ttd, placedBy, dim);
+        }
+
+        #endregion
 
         public virtual void Update(GameTime gametime)
         {
@@ -102,7 +182,12 @@ namespace BombermanObjects
             {
                 explosions.Remove(e);
                 Explosion exp = e as Explosion;
-                (statics.GetAtPoint(exp.CenterGrid) as Box)?.Destroy();
+                var item = statics.GetAtPoint(exp.CenterGrid) as Box;
+                if (item != null)
+                {
+                    item.Destroy();
+                    DestroyedBoxes.Add(item);
+                }
             }
 
             foreach (var p in players)
