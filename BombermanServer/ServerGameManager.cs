@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Lidgren.Network;
 using BombermanObjects;
 using Microsoft.Xna.Framework;
+using BombermanObjects.Logical;
 
 namespace BombermanServer
 {
@@ -49,7 +50,29 @@ namespace BombermanServer
             NetOutgoingMessage outmsg = server.CreateMessage();
             outmsg.WriteVariableInt32(0);
             outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
-            outmsg.WriteAllProperties((GameManager)this);
+            
+            foreach (var item in this.statics)
+            {
+
+                Point? p = (item as Box)?.CenterGrid;
+                PowerUp powerupType = (item as Box)?.PowerUp;
+                if (p.HasValue)
+                {
+                    byte x = (byte)p.Value.X;
+                    byte y = (byte)p.Value.Y;
+                    outmsg.Write(x);
+                    outmsg.Write(y);
+                    if (powerupType != null)
+                    {
+                        outmsg.Write((byte)powerupType.Type);
+                    } else
+                    {
+                        outmsg.Write((byte)PowerUp.PowerUpType.None);
+                    }
+                }
+            }
+            outmsg.Write((byte)0xff);
+            //outmsg.WriteAllProperties((GameManager)this);
             return outmsg;
 
         }

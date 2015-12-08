@@ -15,7 +15,7 @@ namespace BombermanClient
                 Usage();
                 //return -1;
             }
-            BombermanGame game = new BombermanGame("127.0.0.1", 12346);
+            BombermanGame game = new BombermanGame("172.28.1.61", 12346);
             //BombermanGame game = new BombermanGame(args[0], Convert.ToInt32(args[1]));
             game.Run();
             return 0;
