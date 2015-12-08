@@ -136,8 +136,6 @@ namespace BombermanClient
                             case PacketTypeEnums.PacketType.GAME_STATE:
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE_FULL:
-                                
-
                                 while (inc.PeekByte() != (byte)0xff)
                                 {
                                     byte x = inc.ReadByte();
