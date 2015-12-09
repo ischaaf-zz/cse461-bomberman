@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BombermanObjects;
 using Lidgren.Network;
-using BombermanObjects;
 using Microsoft.Xna.Framework;
+using System;
 using System.Threading;
 
 namespace BombermanServer
@@ -13,7 +9,6 @@ namespace BombermanServer
     public class BombermanServer
     {
         public static readonly string LOGIN_MSG = "Login message";
-        private static readonly int SERVER_PORT = 12346;
         public bool gameActive;
         ServerGameManager manager;
         NetPeerConfiguration config;
