@@ -32,6 +32,8 @@ namespace BombermanClient
         static void Usage()
         {
             Console.WriteLine("BombermanClient.exe [host] [port]");
+            Console.WriteLine("Press any key to quit...");
+            Console.Read();
         }
     }
 }

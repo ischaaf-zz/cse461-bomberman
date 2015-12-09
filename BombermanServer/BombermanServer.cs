@@ -13,7 +13,7 @@ namespace BombermanServer
     public class BombermanServer
     {
         public static readonly string LOGIN_MSG = "Login message";
-        public static readonly int SERVER_PORT = 12346;
+        private static readonly int SERVER_PORT = 12346;
         public bool gameActive;
         ServerGameManager manager;
         NetPeerConfiguration config;
@@ -24,11 +24,11 @@ namespace BombermanServer
         PlayerInfo[] playerInfoArr;
 
 
-        public BombermanServer(int players)
+        public BombermanServer(int players, int port)
         {
             gameActive = false;
             config = new NetPeerConfiguration("game");
-            config.Port = SERVER_PORT;
+            config.Port = port;
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             server = new NetServer(config);
 
