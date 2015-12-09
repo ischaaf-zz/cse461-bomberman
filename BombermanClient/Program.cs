@@ -13,18 +13,25 @@ namespace BombermanClient
             if (args.Length != 2)
             {
                 Usage();
-                //return -1;
+                return -1;
             }
-            BombermanGame game = new BombermanGame("172.28.1.61", 12346);
-            //BombermanGame game = new BombermanGame(args[0], Convert.ToInt32(args[1]));
+            int port;
+            bool parsed = int.TryParse(args[1], out port);
+            if (!parsed)
+            {
+                Usage();
+                return -1;
+            }
+            string host = args[0];
+            Console.WriteLine($"Connecting game client to: {host}:{port}");
+            BombermanGame game = new BombermanGame(host, port);
             game.Run();
             return 0;
         }
 
         static void Usage()
         {
-            Console.WriteLine("IP address and port");
-
+            Console.WriteLine("BombermanClient.exe [host] [port]");
         }
     }
 }
