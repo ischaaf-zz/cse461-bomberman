@@ -168,12 +168,18 @@ namespace BombermanObjects
             p.Position = pos;
         }
 
-        public void PlaceBomb(int player, int x, int y, long detTime)
+        public void PlaceBombOrUpdate(int player, int x, int y, long detTime)
         {
             Player p = players[player];
-            Bomb b = CreateBomb(x, y, new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3)), 3, p, BOX_WIDTH);
-            collider.RegisterStatic(b);
-            bombs.Add(b);
+            if (bombs.IsItemAtPoint(new Point(x, y)))
+            {
+                return;
+            } else
+            {
+                Bomb b = CreateBomb(x, y, new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3)), 3, p, BOX_WIDTH);
+                collider.RegisterStatic(b);
+                bombs.Add(b);
+            }
         }
 
         public void RemoveBomb(int x, int y)
