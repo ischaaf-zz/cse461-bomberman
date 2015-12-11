@@ -190,7 +190,7 @@ namespace BombermanServer
                             byte packetType = inc.ReadByte();
                             if (packetType == (byte)PacketTypeEnums.PacketType.EVENT)
                             {
-                                HandleEvent(inc, senderID);
+                                HandleEvent(gameTime, inc, senderID);
                             }
                             else
                             {
@@ -223,21 +223,17 @@ namespace BombermanServer
             }
         }
 
-        public void HandleEvent(NetIncomingMessage inc, int playerID)
+        public void HandleEvent(GameTime gameTime, NetIncomingMessage inc, int playerID)
         {
             byte eventType = inc.ReadByte();
             if (eventType == (byte)PacketTypeEnums.EventType.EVENT_MOVE)
             {
-                BombermanObjects.Logical.Player.Direction dir = (BombermanObjects.Logical.Player.Direction)inc.ReadInt32();
-                int dist = inc.ReadInt32();
-                manager.players[playerID - 1].move(dir, dist);
+                BombermanObjects.Logical.Player.Direction dir = (BombermanObjects.Logical.Player.Direction)inc.ReadByte();
+                manager.MovePlayer(playerID - 1, dir);
 
             } else if (eventType == (byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT)
             {
-                GameTime gameTime = new GameTime();
-                inc.ReadAllProperties(gameTime);
                 manager.players[playerID - 1].placeBomb(gameTime);
-
             }
         }
     }

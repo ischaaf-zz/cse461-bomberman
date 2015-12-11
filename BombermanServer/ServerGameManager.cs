@@ -12,7 +12,8 @@ namespace BombermanServer
 {
     public class ServerGameManager : GameManager
     {
-        public static readonly int BROADCAST_INTERVAL = 60; // in ticks
+        public static readonly int BROADCAST_INTERVAL = 1; // in frames
+        private int framesSinceLastSend;
         public NetServer server;
         PlayerInfo[] playerInfoArr;
 
@@ -20,14 +21,17 @@ namespace BombermanServer
         {
             this.server = server;
             this.playerInfoArr = playerInfoArr;
+            framesSinceLastSend = 0;
         }
 
         public override void Update(GameTime gametime)
         {
+            framesSinceLastSend++;
             base.Update(gametime);
             // broadcast gamestate
-            if (gametime.ElapsedGameTime.Ticks % BROADCAST_INTERVAL == 0)
+            if (framesSinceLastSend >= BROADCAST_INTERVAL)
             {
+                framesSinceLastSend = 0;
                 // send game state
                 NetOutgoingMessage outmsg = GetPackagedGameState();
                 for (int i = 0; i < playerInfoArr.Length; i++)
