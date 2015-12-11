@@ -126,6 +126,15 @@ namespace BombermanServer
                 }
             }
             Console.WriteLine("Starting game...");
+
+            for (int i = 0; i < playersConnected - 1; i++)
+            {
+                Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
+                NetOutgoingMessage newPlayerMsg = server.CreateMessage();
+                newPlayerMsg.WriteVariableInt32(0);
+                newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.GAME_START);
+                server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+            }
             runner.Run();
             // while connected clients less than players
             //  accept connection
