@@ -230,11 +230,12 @@ namespace BombermanServer
             byte eventType = inc.ReadByte();
             if (eventType == (byte)PacketTypeEnums.EventType.EVENT_MOVE)
             {
+                Console.WriteLine($"moving player {playerID} {dir}");
                 BombermanObjects.Logical.Player.Direction dir = (BombermanObjects.Logical.Player.Direction)inc.ReadByte();
                 manager.MovePlayer(playerID - 1, dir);
-
             } else if (eventType == (byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT)
             {
+                Console.WriteLine($"Player {playerID} has placed a bomb");
                 manager.players[playerID - 1].placeBomb(gameTime);
             }
         }
