@@ -9,6 +9,8 @@ namespace BombermanServer
     public class BombermanServer
     {
         public static readonly string LOGIN_MSG = "Login message";
+        private static readonly int TRIES = 10;
+
         public bool gameActive;
         ServerGameManager manager;
         NetPeerConfiguration config;
@@ -17,7 +19,7 @@ namespace BombermanServer
         int playersConnected;
         NetConnection[] playerConnections;
         PlayerInfo[] playerInfoArr;
-
+        ServerGameRunner runner;
 
         public BombermanServer(int players, int port)
         {
@@ -29,6 +31,7 @@ namespace BombermanServer
 
             manager = new ServerGameManager(server, playerInfoArr, players);
             manager.Initialize();
+            runner = new ServerGameRunner(manager, this);
             totalPlayers = players;
             playersConnected = 0;
             playerConnections = new NetConnection[players];
@@ -51,7 +54,16 @@ namespace BombermanServer
                         case NetIncomingMessageType.ConnectionApproval:
                             Console.WriteLine("approving incoming connection");
                             Console.WriteLine($"Message Type: {message.SenderConnection.Status}");
-                            message.SenderConnection.Approve();
+                            if (playersConnected < totalPlayers)
+                            {
+                                message.SenderConnection.Approve();
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Already at max number of players, denying {message.SenderConnection}");
+                                message.SenderConnection.Deny();
+                                break;
+                            }
                             var data = message.ReadString();
                             if (data.Equals(LOGIN_MSG))
                             {
@@ -66,9 +78,9 @@ namespace BombermanServer
                                 outmsg.WriteVariableInt32(playersConnected);
                                 // we don't want this to be lost, so set level to ReliableOrdered
                                 Console.WriteLine($"Connection Status: {playerConnection.Status}");
-                                Thread.Sleep(1000);
+                                Thread.Sleep(100);
                                 server.SendMessage(outmsg, playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
-                                Thread.Sleep(2000);
+                                Thread.Sleep(100);
                                 server.SendMessage(manager.GetFullGameState(), playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 server.FlushSendQueue();
                                 Console.WriteLine("accepted Connection from: " + playerConnection);
@@ -77,7 +89,7 @@ namespace BombermanServer
                                 
                                 for (int i = 0; i < playersConnected - 1; i++)
                                 {
-                                    Console.WriteLine($"Broadcasting to connected player {i} that new player {playersConnected} has connected");
+                                    Console.WriteLine($"Broadcasting to connected player {i + 1} that new player {playersConnected} has connected");
                                     NetOutgoingMessage newPlayerMsg = server.CreateMessage();
                                     newPlayerMsg.WriteVariableInt32(0);
                                     newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.NEW_PLAYER_ID);
@@ -88,22 +100,6 @@ namespace BombermanServer
                             break;
 
                         case NetIncomingMessageType.Data:
-                            // handle custom messages
-                            //var data2 = message.ReadString();
-                            //if (data2.Equals(LOGIN_MSG))
-                            //{
-                            //    playersConnected++;
-                            //    NetConnection playerConnection2 = message.SenderConnection;
-                            //    playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection2, playersConnected, playerConnection2.AverageRoundtripTime);
-
-                            //    NetOutgoingMessage outmsg2 = server.CreateMessage();
-                            //    outmsg2.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
-                            //    outmsg2.WriteVariableInt32(playersConnected);
-                            //    // we don't want this to be lost, so set level to ReliableOrdered
-                            //    server.SendMessage(outmsg2, playerConnection2, NetDeliveryMethod.ReliableOrdered, 0);
-                            //    Console.WriteLine("accepted Connection from: " + playerConnection2);
-                            //    Console.WriteLine("assigning playerID: " + playersConnected);
-                            //}
                             break;
 
                         case NetIncomingMessageType.StatusChanged:
@@ -129,57 +125,8 @@ namespace BombermanServer
                     }
                 }
             }
-            NetIncomingMessage inc;
-            while (true)
-            {
-                if ((inc = server.ReadMessage()) != null)
-                {
-                    switch (inc.MessageType)
-                    {
-                        
-
-                        case NetIncomingMessageType.Data:
-                            // handle custom messages
-                            Console.WriteLine("incoming data");
-                            int senderID = inc.ReadByte();
-                            if (senderID <= 0 || senderID > playersConnected)
-                            {
-                                Console.WriteLine("invalid sendID received, discarding packet");
-                                break;
-                            }
-                            byte packetType = inc.ReadByte();
-                            if (packetType == (byte) PacketTypeEnums.PacketType.EVENT)
-                            {
-                                HandleEvent(inc, senderID);
-                            } else
-                            {
-                                Console.WriteLine("received unknown packet from client");                             
-                            }
-                            break;
-
-                        case NetIncomingMessageType.StatusChanged:
-                            // handle connection status messages
-                            Console.WriteLine("status change");
-                            switch (inc.SenderConnection.Status)
-                            {
-                                
-                            }
-                            break;
-
-                        case NetIncomingMessageType.DebugMessage:
-                            // handle debug messages
-                            // (only received when compiled in DEBUG mode)
-                            Console.WriteLine(inc.ReadString());
-                            break;
-
-                        /* .. */
-                        default:
-                            Console.WriteLine("unhandled message with type: "
-                                + inc.MessageType);
-                            break;
-                    }
-                }
-            }
+            Console.WriteLine("Starting game...");
+            runner.Run();
             // while connected clients less than players
             //  accept connection
             //  receive message and check if it an actual client, special message.
@@ -210,6 +157,63 @@ namespace BombermanServer
             //          enqueue valid events into queues
             //          
         }
+
+        public void Update(GameTime gameTime)
+        {
+            NetIncomingMessage inc;
+            for (int i = 0; i < TRIES; i++)
+            {
+                if ((inc = server.ReadMessage()) != null)
+                {
+                    switch (inc.MessageType)
+                    {
+
+
+                        case NetIncomingMessageType.Data:
+                            // handle custom messages
+                            Console.WriteLine("incoming data");
+                            int senderID = inc.ReadByte();
+                            if (senderID <= 0 || senderID > playersConnected)
+                            {
+                                Console.WriteLine("invalid sendID received, discarding packet");
+                                break;
+                            }
+                            byte packetType = inc.ReadByte();
+                            if (packetType == (byte)PacketTypeEnums.PacketType.EVENT)
+                            {
+                                HandleEvent(inc, senderID);
+                            }
+                            else
+                            {
+                                Console.WriteLine("received unknown packet from client");
+                            }
+                            break;
+
+                        case NetIncomingMessageType.StatusChanged:
+                            // handle connection status messages
+                            Console.WriteLine("status change");
+                            switch (inc.SenderConnection.Status)
+                            {
+
+                            }
+                            break;
+
+                        case NetIncomingMessageType.DebugMessage:
+                            // handle debug messages
+                            // (only received when compiled in DEBUG mode)
+                            Console.WriteLine(inc.ReadString());
+                            break;
+
+                        /* .. */
+                        default:
+                            Console.WriteLine("unhandled message with type: "
+                                + inc.MessageType);
+                            break;
+                    }
+                }
+            }
+        }
+
         public void HandleEvent(NetIncomingMessage inc, int playerID)
         {
             byte eventType = inc.ReadByte();
