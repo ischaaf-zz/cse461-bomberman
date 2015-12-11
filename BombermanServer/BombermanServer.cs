@@ -68,6 +68,7 @@ namespace BombermanServer
                             if (data.Equals(LOGIN_MSG))
                             {
                                 playersConnected++;
+                                manager.AddPlayer(playersConnected);
                                 NetConnection playerConnection = message.SenderConnection;
                                 playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection, playersConnected, playerConnection.AverageRoundtripTime);
 
