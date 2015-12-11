@@ -45,7 +45,7 @@ namespace BombermanServer
         public NetOutgoingMessage GetPackagedGameState()
         {
             NetOutgoingMessage outmsg = server.CreateMessage();
-            outmsg.Write(0);
+            outmsg.Write((byte)0);
             outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE);
             for (int i = 0; i < players.Length; i++)
             {
@@ -80,7 +80,7 @@ namespace BombermanServer
         public NetOutgoingMessage GetFullGameState()
         {
             NetOutgoingMessage outmsg = server.CreateMessage();
-            outmsg.Write(0);
+            outmsg.Write((byte)0);
             outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
             
             foreach (var item in this.statics)
