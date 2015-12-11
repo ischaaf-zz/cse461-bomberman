@@ -11,7 +11,7 @@ namespace BombermanObjects.Logical
 {
     public class Player : AbstractGameObject
     {
-        public enum Direction
+        public enum Direction : byte
         {
             North, South, East, West, Center
         }
@@ -60,25 +60,12 @@ namespace BombermanObjects.Logical
 
         public void Update(GameTime gametime, PlayerInput input)
         {
-            // move
+            // check if dead
             if (Lives <= 0)
             {
                 return;
             }
-            bool moved = false;
-            foreach (var dir in input.Move)
-            {
-                moved = move(dir, Speed);
-                if (moved)
-                    break;
-            }
-            if (!moved)
-                MoveDirection = Direction.Center;
-            // place bombs
-            if (input.PlaceBomb)
-            {
-                placeBomb(gametime);
-            }
+
             Rectangle iRect = new Rectangle(position.X + 10, position.Y + 10, 44, 44);
             int cY = iRect.Center.Y / GameManager.BOX_WIDTH;
             int hY = iRect.Bottom / GameManager.BOX_WIDTH;
@@ -114,11 +101,6 @@ namespace BombermanObjects.Logical
         // changed to public from private for server use.
         public bool move(Direction dir, int dist)
         {
-            // added for external communicaton
-            if (externalOutput != null)
-            {
-                externalOutput.sendMove(dir, dist);
-            }
             bool moved = false;
             Movement m = new Movement(dist, dir);
             var res = manager.collider.Move(this, m);

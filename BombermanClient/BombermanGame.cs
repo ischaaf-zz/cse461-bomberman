@@ -20,6 +20,8 @@ namespace BombermanClient
         protected SpriteBatch spritebatch;
         protected GraphicalGameManager manager;
         protected int playerId;
+        protected int totalPlayers;
+        LocalInput input = new LocalInput();
 
         NetClient client;
         private bool gameStarted;
@@ -75,6 +77,7 @@ namespace BombermanClient
                                     manager.AddPlayer(i);
                                 }
                                 Console.WriteLine($"Assigned player: {playerId}");
+                                totalPlayers = playerId;
                             }
                             awaitingAssignment = false;
                             break;
@@ -113,6 +116,19 @@ namespace BombermanClient
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            // send moves and bombs
+            input.Update(gameTime);
+            var current = input.CurrentInput;
+            var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
+            if (manager.players[playerId - 1].MoveDirection != curM)
+            {
+                // send Move;
+            }
+            if (current.PlaceBomb)
+            {
+                // send Bomb
+            }
+
             NetIncomingMessage inc;
             if ((inc = client.ReadMessage()) != null)
             {
@@ -129,11 +145,18 @@ namespace BombermanClient
                                 Console.WriteLine("ID has already been assigned");
                                 break;
                             case PacketTypeEnums.PacketType.NEW_PLAYER_ID:
+                                totalPlayers++;
+                                Console.WriteLine($"New player added, {totalPlayers} players total");
                                 manager.AddPlayer(inc.ReadVariableInt32());
                                 break;
                             case PacketTypeEnums.PacketType.EVENT:
                                 break;
+                            case PacketTypeEnums.PacketType.GAME_START:
+                                gameStarted = true;
+                                Console.WriteLine("Game starting...");
+                                break;
                             case PacketTypeEnums.PacketType.GAME_STATE:
+                                UpdateGameState(inc);
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE_FULL:
                                 while (inc.PeekByte() != (byte)0xff)
@@ -167,11 +190,58 @@ namespace BombermanClient
             base.Update(gameTime);
         }
 
+        private void UpdateGameState(NetIncomingMessage inc)
+        {
+            // read player info
+            for (int i = 0; i < totalPlayers; i++)
+            {
+                int speed = inc.ReadByte();
+                int lives = inc.ReadByte();
+                int maxBombs = inc.ReadByte();
+                int placedBombs = inc.ReadByte();
+                int bombPower = inc.ReadByte();
+                long immune = inc.ReadVariableInt64();
+                Player.Direction dir = (Player.Direction)inc.ReadByte();
+                int x = inc.ReadVariableInt32();
+                int y = inc.ReadVariableInt32();
+                manager.OverridePlayer(i, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, new Rectangle(x, y, 64, 64));
+            }
+
+            // read bomb info
+            while (inc.PeekByte() != 0xff)
+            {
+                int player = inc.ReadByte();
+                int x = inc.ReadByte();
+                int y = inc.ReadByte();
+                long detTime = inc.ReadVariableInt64();
+                manager.PlaceBombOrUpdate(player, x, y, detTime);
+            }
+            inc.ReadByte();
+
+            // read box info
+            while (inc.PeekByte() != 0xff)
+            {
+                int x = inc.ReadByte();
+                int y = inc.ReadByte();
+                if (manager.statics.IsItemAtPoint(new Point(x, y)))
+                {
+                    manager.DestroyBox(x, y);
+                }
+            }
+            inc.ReadByte();
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             // TODO Update graphics
             spritebatch.Begin();
             manager.Draw(spritebatch, gameTime);
+
+            if (!gameStarted)
+            {
+                
+            }
+
             spritebatch.End();
 
             base.Draw(gameTime);
