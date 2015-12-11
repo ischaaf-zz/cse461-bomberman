@@ -23,6 +23,8 @@ namespace BombermanObjects
             new Rectangle(64, 11*64, 64, 64)
         };
 
+        public Dictionary<Player, int> PlayerNumbers;
+
         public ICollider collider;
         public SingleGridObjectCollection statics;
         public SingleGridObjectCollection bombs;
@@ -49,6 +51,7 @@ namespace BombermanObjects
             bombs = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
             powerUps = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
             this.players = new Player[players];
+            PlayerNumbers = new Dictionary<Player, int>();
             input = new LocalInput();
             TotalBombCap = 15;
             TotalBombPow = 20;
@@ -60,6 +63,7 @@ namespace BombermanObjects
             if (players[number - 1] == null)
             {
                 players[number - 1] = CreatePlayer(STARTS[number - 1], COLORS[number - 1]);
+                PlayerNumbers[players[number - 1]] = number - 1;
                 return players[number - 1];
             } else
             {
@@ -142,6 +146,61 @@ namespace BombermanObjects
             {
                 statics.Add(b);
                 collider.RegisterStatic(b);
+            }
+        }
+
+        public bool MovePlayer(int playerNumber, Player.Direction direction)
+        {
+            Player p = players[playerNumber];
+            return p.move(direction, p.Speed);
+        }
+
+        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, int placedB, long immune, Player.Direction moveD, Rectangle pos)
+        {
+            Player p = players[player];
+            p.Speed = speed;
+            p.Lives = lives;
+            p.MaxBombs = maxB;
+            p.BombPower = bPower;
+            p.PlacedBombs = placedB;
+            p.ImmuneTill = new TimeSpan(immune);
+            p.MoveDirection = moveD;
+            p.Position = pos;
+        }
+
+        public void PlaceBomb(int player, int x, int y, long detTime)
+        {
+            Player p = players[player];
+            Bomb b = CreateBomb(x, y, new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3)), 3, p, BOX_WIDTH);
+            collider.RegisterStatic(b);
+            bombs.Add(b);
+        }
+
+        public void RemoveBomb(int x, int y)
+        {
+            if (bombs.IsItemAtPoint(new Point(x, y)))
+            {
+                AbstractGameObject b = bombs.GetAtPoint(new Point(x, y));
+                bombs.Remove(b);
+                collider.UnRegisterStatic(b);
+            }
+        }
+
+        public void RemoveBox(int x, int y)
+        {
+            if (statics.IsItemAtPoint(new Point(x, y)))
+            {
+                var b = statics.GetAtPoint(new Point(x, y));
+                statics.Remove(b);
+            }
+        }
+
+        public void DestroyBox(int x, int y)
+        {
+            if (statics.IsItemAtPoint(new Point(x, y)))
+            {
+                var b = statics.GetAtPoint(new Point(x, y));
+                (b as Box).Destroy();
             }
         }
 
