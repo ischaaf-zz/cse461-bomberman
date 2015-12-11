@@ -67,12 +67,12 @@ namespace BombermanClient
                     switch (inc.MessageType)
                     {
                         case NetIncomingMessageType.Data:
-                            int sid = inc.ReadVariableInt32();
+                            int sid = inc.ReadByte();
                             PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
                             Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
                             if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
                             {
-                                playerId = inc.ReadVariableInt32();
+                                playerId = inc.ReadByte();
                                 for (int i = 1; i <= playerId; i++)
                                 {
                                     manager.AddPlayer(i);
@@ -117,28 +117,30 @@ namespace BombermanClient
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // send moves and bombs
-            input.Update(gameTime);
-            var current = input.CurrentInput;
-            var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
-            if (manager.players[playerId - 1].MoveDirection != curM)
+            if (gameStarted)
             {
-                // send Move;
-                NetOutgoingMessage moveMsg = client.CreateMessage();
-                moveMsg.Write((byte)playerId);
-                moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
-                moveMsg.Write((byte)PacketTypeEnums.EventType.EVENT_MOVE);
-                moveMsg.Write((byte)curM);
-                client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
-            }
-            if (current.PlaceBomb)
-            {
-                // send Bomb
-                NetOutgoingMessage bombMsg = client.CreateMessage();
-                bombMsg.Write((byte)playerId);
-                bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
-                bombMsg.Write((byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT);
-                client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                input.Update(gameTime);
+                var current = input.CurrentInput;
+                var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
+                if (manager.players[playerId - 1].MoveDirection != curM)
+                {
+                    // send Move;
+                    NetOutgoingMessage moveMsg = client.CreateMessage();
+                    moveMsg.Write((byte)playerId);
+                    moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
+                    moveMsg.Write((byte)PacketTypeEnums.EventType.EVENT_MOVE);
+                    moveMsg.Write((byte)curM);
+                    client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                }
+                if (current.PlaceBomb)
+                {
+                    // send Bomb
+                    NetOutgoingMessage bombMsg = client.CreateMessage();
+                    bombMsg.Write((byte)playerId);
+                    bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
+                    bombMsg.Write((byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT);
+                    client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                }
             }
 
             NetIncomingMessage inc;
@@ -147,7 +149,7 @@ namespace BombermanClient
                 switch (inc.MessageType)
                 {
                     case NetIncomingMessageType.Data:
-                        int sid = inc.ReadVariableInt32();
+                        int sid = inc.ReadByte();
                         PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
                         Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
 
@@ -159,15 +161,17 @@ namespace BombermanClient
                             case PacketTypeEnums.PacketType.NEW_PLAYER_ID:
                                 totalPlayers++;
                                 Console.WriteLine($"New player added, {totalPlayers} players total");
-                                manager.AddPlayer(inc.ReadVariableInt32());
+                                manager.AddPlayer(inc.ReadByte());
                                 break;
                             case PacketTypeEnums.PacketType.EVENT:
+                                Console.WriteLine("Event received");
                                 break;
                             case PacketTypeEnums.PacketType.GAME_START:
                                 gameStarted = true;
                                 Console.WriteLine("Game starting...");
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE:
+                                Console.WriteLine("Game state received");
                                 UpdateGameState(inc);
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE_FULL:
