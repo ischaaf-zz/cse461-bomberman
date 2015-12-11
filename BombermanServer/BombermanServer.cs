@@ -29,13 +29,14 @@ namespace BombermanServer
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
             server = new NetServer(config);
 
+            playerInfoArr = new PlayerInfo[players];
+
             manager = new ServerGameManager(server, playerInfoArr, players);
             manager.Initialize();
             runner = new ServerGameRunner(manager, this);
             totalPlayers = players;
             playersConnected = 0;
             playerConnections = new NetConnection[players];
-            playerInfoArr = new PlayerInfo[players];
         }
         
         public void Start()

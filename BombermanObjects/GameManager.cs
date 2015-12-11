@@ -50,6 +50,7 @@ namespace BombermanObjects
             explosions = new GridObjectCollection(BOX_WIDTH, GAME_SIZE, BOX_WIDTH);
             bombs = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
             powerUps = new SingleGridObjectCollection(BOX_WIDTH, GAME_SIZE, GAME_SIZE);
+            DestroyedBoxes = new List<Box>();
             this.players = new Player[players];
             PlayerNumbers = new Dictionary<Player, int>();
             input = new LocalInput();

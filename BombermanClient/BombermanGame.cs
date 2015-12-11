@@ -22,6 +22,7 @@ namespace BombermanClient
         protected int playerId;
         protected int totalPlayers;
         LocalInput input = new LocalInput();
+        NetConnection serverConnection;
 
         NetClient client;
         private bool gameStarted;
@@ -55,7 +56,7 @@ namespace BombermanClient
             outmsg.Write("Login message");
 
 
-            NetConnection connection = client.Connect(hostIP, port, outmsg);
+            serverConnection = client.Connect(hostIP, port, outmsg);
             Thread.Sleep(2000);
             bool awaitingAssignment = true;
             while (awaitingAssignment)
@@ -123,10 +124,21 @@ namespace BombermanClient
             if (manager.players[playerId - 1].MoveDirection != curM)
             {
                 // send Move;
+                NetOutgoingMessage moveMsg = client.CreateMessage();
+                moveMsg.Write((byte)playerId);
+                moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
+                moveMsg.Write((byte)PacketTypeEnums.EventType.EVENT_MOVE);
+                moveMsg.Write((byte)curM);
+                client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
             }
             if (current.PlaceBomb)
             {
                 // send Bomb
+                NetOutgoingMessage bombMsg = client.CreateMessage();
+                bombMsg.Write((byte)playerId);
+                bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
+                bombMsg.Write((byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT);
+                client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
             }
 
             NetIncomingMessage inc;
