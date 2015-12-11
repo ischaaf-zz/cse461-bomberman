@@ -41,7 +41,35 @@ namespace BombermanServer
         public NetOutgoingMessage GetPackagedGameState()
         {
             NetOutgoingMessage outmsg = server.CreateMessage();
-
+            outmsg.Write(0);
+            outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE);
+            for (int i = 0; i < players.Length; i++)
+            {
+                Player currPlayer = players[i];
+                outmsg.Write((byte)currPlayer.Speed);
+                outmsg.Write((byte)currPlayer.Lives);
+                outmsg.Write((byte)currPlayer.MaxBombs);
+                outmsg.Write((byte)currPlayer.PlacedBombs);
+                outmsg.Write((byte)currPlayer.BombPower);
+                outmsg.WriteVariableInt64(currPlayer.ImmuneTill.Ticks);
+                outmsg.Write((byte)currPlayer.MoveDirection);
+                outmsg.WriteVariableInt32(currPlayer.Position.X);
+                outmsg.WriteVariableInt32(currPlayer.Position.Y);
+            }
+            foreach (Bomb bomb in bombs)
+            {
+                outmsg.Write((byte)PlayerNumbers[bomb.placedBy]);
+                outmsg.Write((byte)bomb.CenterGrid.X);
+                outmsg.Write((byte)bomb.CenterGrid.Y);
+                outmsg.WriteVariableInt64(bomb.DetonateTime.Ticks);
+            }
+            outmsg.Write(0xff);
+            foreach (Box box in DestroyedBoxes)
+            {
+                outmsg.Write((byte)box.CenterGrid.X);
+                outmsg.Write((byte)box.CenterGrid.Y);
+            }
+            outmsg.Write(0xff);
             return outmsg;
         }
 
