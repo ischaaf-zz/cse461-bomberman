@@ -77,7 +77,7 @@ namespace BombermanServer
                                 // senderID, PacketType, ID
                                 outmsg.Write(0);
                                 outmsg.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
-                                outmsg.WriteVariableInt32(playersConnected);
+                                outmsg.Write((byte)playersConnected);
                                 // we don't want this to be lost, so set level to ReliableOrdered
                                 Console.WriteLine($"Connection Status: {playerConnection.Status}");
                                 Thread.Sleep(100);
@@ -95,7 +95,7 @@ namespace BombermanServer
                                     NetOutgoingMessage newPlayerMsg = server.CreateMessage();
                                     newPlayerMsg.Write(0);
                                     newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.NEW_PLAYER_ID);
-                                    newPlayerMsg.WriteVariableInt32(playersConnected);
+                                    newPlayerMsg.Write((byte)playersConnected);
                                     server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 }
                             }
@@ -133,7 +133,7 @@ namespace BombermanServer
             {
                 Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
                 NetOutgoingMessage newPlayerMsg = server.CreateMessage();
-                newPlayerMsg.WriteVariableInt32(0);
+                newPlayerMsg.Write(0);
                 newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.GAME_START);
                 server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
             }
