@@ -250,10 +250,9 @@ namespace BombermanClient
             {
                 int x = inc.ReadByte();
                 int y = inc.ReadByte();
-                Console.WriteLine($"Destroy box at {x}, {y}");
                 if (manager.statics.IsItemAtPoint(new Point(x, y)))
                 {
-                    manager.DestroyBox(x, y);
+                    //manager.DestroyBox(x, y);
                 }
             }
             inc.ReadByte();
