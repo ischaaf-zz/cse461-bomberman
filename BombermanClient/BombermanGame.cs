@@ -130,7 +130,7 @@ namespace BombermanClient
                 var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
      
                 //Console.WriteLine($"{curM} {manager.players[playerId - 1].MoveDirection}");
-                if (manager.players[playerId - 1].MoveDirection != curM && curM != LastMove)
+                if (manager.players[playerId - 1].MoveDirection != curM) //  && curM != LastMove
                 {
                     // send Move;
                     //Console.WriteLine("Sending Move");
@@ -139,7 +139,7 @@ namespace BombermanClient
                     moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
                     moveMsg.Write((byte)PacketTypeEnums.EventType.EVENT_MOVE);
                     moveMsg.Write((byte)curM);
-                    client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                    client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.UnreliableSequenced, 0);
                     LastMove = curM;
                 }
                 if (current.PlaceBomb)
