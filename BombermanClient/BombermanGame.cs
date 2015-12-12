@@ -118,6 +118,10 @@ namespace BombermanClient
 
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            if (gameTime.IsRunningSlowly)
+            {
+                Console.WriteLine("Lagging");
+            }
 
             if (gameStarted)
             {
@@ -129,7 +133,7 @@ namespace BombermanClient
                 if (manager.players[playerId - 1].MoveDirection != curM && curM != LastMove)
                 {
                     // send Move;
-                    Console.WriteLine("Sending Move");
+                    //Console.WriteLine("Sending Move");
                     NetOutgoingMessage moveMsg = client.CreateMessage();
                     moveMsg.Write((byte)playerId);
                     moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
@@ -141,7 +145,7 @@ namespace BombermanClient
                 if (current.PlaceBomb)
                 {
                     // send Bomb
-                    Console.WriteLine("Sending Bomb");
+                    //Console.WriteLine("Sending Bomb");
                     NetOutgoingMessage bombMsg = client.CreateMessage();
                     bombMsg.Write((byte)playerId);
                     bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);

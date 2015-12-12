@@ -16,17 +16,26 @@ namespace BombermanServer
         private int framesSinceLastSend;
         public NetServer server;
         PlayerInfo[] playerInfoArr;
+        List<NetConnection> connections;
 
         public ServerGameManager (NetServer server, PlayerInfo[] playerInfoArr, int players) : base(players)
         {
             this.server = server;
             this.playerInfoArr = playerInfoArr;
             framesSinceLastSend = 0;
-            
+            connections = new List<NetConnection>(4);
         }
 
         public override void Update(GameTime gametime)
         {
+            if (connections.Count == 0)
+            {
+                foreach (var pi in playerInfoArr)
+                {
+                    connections.Add(pi.playerConnection);
+                    Console.WriteLine($"Peer Latency: {pi.playerConnection.AverageRoundtripTime}");
+                }
+            }
             framesSinceLastSend++;
             base.Update(gametime);
             // broadcast gamestate
@@ -36,13 +45,8 @@ namespace BombermanServer
                 // send game state
 
                 NetOutgoingMessage outmsg = GetPackagedGameState();
-                for (int i = 0; i < playerInfoArr.Length; i++)
-                {
-                    
-                    NetConnection currConnection = playerInfoArr[i].playerConnection;
-                    server.SendMessage(outmsg, currConnection, NetDeliveryMethod.UnreliableSequenced, 0);
-                    Console.WriteLine("Gamestate Sent");
-                }
+                server.SendMessage(outmsg, connections, NetDeliveryMethod.UnreliableSequenced, 0);
+                //Console.WriteLine("Gamestate Sent");
             }
         }
 
