@@ -28,6 +28,7 @@ namespace BombermanClient
         private bool gameStarted;
         private string hostIP { get; set; }
         private int port { get; set; }
+        private Player.Direction LastMove = Player.Direction.Center;
 
         public BombermanGame(string hostIp, int port) : base()
         {
@@ -49,6 +50,7 @@ namespace BombermanClient
             gameStarted = false;
             NetPeerConfiguration config = new NetPeerConfiguration("game");
             client = new NetClient(config);
+            client.Configuration.ReceiveBufferSize = 500;
 
             client.Start();
 
@@ -83,7 +85,7 @@ namespace BombermanClient
                             awaitingAssignment = false;
                             break;
                         case NetIncomingMessageType.StatusChanged:
-
+                            Console.WriteLine("Extra packet");
                             break;
                         default:
                             Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
@@ -122,19 +124,24 @@ namespace BombermanClient
                 input.Update(gameTime);
                 var current = input.CurrentInput;
                 var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
-                if (manager.players[playerId - 1].MoveDirection != curM)
+     
+                //Console.WriteLine($"{curM} {manager.players[playerId - 1].MoveDirection}");
+                if (manager.players[playerId - 1].MoveDirection != curM && curM != LastMove)
                 {
                     // send Move;
+                    Console.WriteLine("Sending Move");
                     NetOutgoingMessage moveMsg = client.CreateMessage();
                     moveMsg.Write((byte)playerId);
                     moveMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
                     moveMsg.Write((byte)PacketTypeEnums.EventType.EVENT_MOVE);
                     moveMsg.Write((byte)curM);
                     client.SendMessage(moveMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                    LastMove = curM;
                 }
                 if (current.PlaceBomb)
                 {
                     // send Bomb
+                    Console.WriteLine("Sending Bomb");
                     NetOutgoingMessage bombMsg = client.CreateMessage();
                     bombMsg.Write((byte)playerId);
                     bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
@@ -151,7 +158,7 @@ namespace BombermanClient
                     case NetIncomingMessageType.Data:
                         int sid = inc.ReadByte();
                         PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
-                        Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
+                        //Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
 
                         switch (type)
                         {
@@ -171,7 +178,7 @@ namespace BombermanClient
                                 Console.WriteLine("Game starting...");
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE:
-                                Console.WriteLine("Game state received");
+                                //Console.WriteLine("Game state received");
                                 UpdateGameState(inc);
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE_FULL:
@@ -220,7 +227,7 @@ namespace BombermanClient
                 Player.Direction dir = (Player.Direction)inc.ReadByte();
                 int x = inc.ReadVariableInt32();
                 int y = inc.ReadVariableInt32();
-                manager.OverridePlayer(i, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, new Rectangle(x, y, 64, 64));
+                manager.OverridePlayer(i, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, x, y);
             }
 
             // read bomb info
@@ -239,6 +246,7 @@ namespace BombermanClient
             {
                 int x = inc.ReadByte();
                 int y = inc.ReadByte();
+                Console.WriteLine($"Destroy box at {x}, {y}");
                 if (manager.statics.IsItemAtPoint(new Point(x, y)))
                 {
                     manager.DestroyBox(x, y);

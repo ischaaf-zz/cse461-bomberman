@@ -127,9 +127,20 @@ namespace BombermanServer
                     }
                 }
             }
+            Console.WriteLine("Waiting to start...");
+            Console.WriteLine("5");
+            Thread.Sleep(1000);
+            Console.WriteLine("4");
+            Thread.Sleep(1000);
+            Console.WriteLine("3");
+            Thread.Sleep(1000);
+            Console.WriteLine("2");
+            Thread.Sleep(1000);
+            Console.WriteLine("1");
+            Thread.Sleep(1000);
             Console.WriteLine("Starting game...");
 
-            for (int i = 0; i < playersConnected - 1; i++)
+            for (int i = 0; i < playersConnected; i++)
             {
                 Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
                 NetOutgoingMessage newPlayerMsg = server.CreateMessage();

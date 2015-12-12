@@ -153,10 +153,11 @@ namespace BombermanObjects
         public bool MovePlayer(int playerNumber, Player.Direction direction)
         {
             Player p = players[playerNumber];
-            return p.move(direction, p.Speed);
+            p.MoveDirection = direction;
+            return true;
         }
 
-        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, int placedB, long immune, Player.Direction moveD, Rectangle pos)
+        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, int placedB, long immune, Player.Direction moveD, int x, int y)
         {
             Player p = players[player];
             p.Speed = speed;
@@ -166,7 +167,8 @@ namespace BombermanObjects
             p.PlacedBombs = placedB;
             p.ImmuneTill = new TimeSpan(immune);
             p.MoveDirection = moveD;
-            p.Position = pos;
+            p.position.X = x;
+            p.position.Y = y;
         }
 
         public void PlaceBombOrUpdate(int player, int x, int y, long detTime)
@@ -207,7 +209,7 @@ namespace BombermanObjects
             if (statics.IsItemAtPoint(new Point(x, y)))
             {
                 var b = statics.GetAtPoint(new Point(x, y));
-                (b as Box).Destroy();
+                (b as Box)?.Destroy();
             }
         }
 

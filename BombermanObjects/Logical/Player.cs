@@ -43,7 +43,7 @@ namespace BombermanObjects.Logical
             }
         }
 
-        protected Rectangle position;
+        public Rectangle position;
 
         public Player(GameManager m, Rectangle pos) : base(m)
         {
@@ -65,6 +65,8 @@ namespace BombermanObjects.Logical
             {
                 return;
             }
+
+            move(MoveDirection, Speed);
 
             Rectangle iRect = new Rectangle(position.X + 10, position.Y + 10, 44, 44);
             int cY = iRect.Center.Y / GameManager.BOX_WIDTH;

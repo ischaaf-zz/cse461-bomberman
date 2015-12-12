@@ -21,7 +21,6 @@ namespace BombermanServer
         {
             Manager = manager;
             Server = server;
-
             graphics = new GraphicsDeviceManager(this);
 
         }
@@ -46,6 +45,7 @@ namespace BombermanServer
 
             Server.Update(gameTime);
             Manager.Update(gameTime);
+            //Console.WriteLine($"Lag: {gameTime.IsRunningSlowly}");
         }
 
         protected override void Draw(GameTime gameTime)

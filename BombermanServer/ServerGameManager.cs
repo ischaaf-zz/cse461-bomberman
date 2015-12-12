@@ -22,6 +22,7 @@ namespace BombermanServer
             this.server = server;
             this.playerInfoArr = playerInfoArr;
             framesSinceLastSend = 0;
+            
         }
 
         public override void Update(GameTime gametime)
@@ -33,11 +34,14 @@ namespace BombermanServer
             {
                 framesSinceLastSend = 0;
                 // send game state
+
                 NetOutgoingMessage outmsg = GetPackagedGameState();
                 for (int i = 0; i < playerInfoArr.Length; i++)
                 {
+                    
                     NetConnection currConnection = playerInfoArr[i].playerConnection;
                     server.SendMessage(outmsg, currConnection, NetDeliveryMethod.UnreliableSequenced, 0);
+                    Console.WriteLine("Gamestate Sent");
                 }
             }
         }
@@ -47,6 +51,7 @@ namespace BombermanServer
             NetOutgoingMessage outmsg = server.CreateMessage();
             outmsg.Write((byte)0);
             outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE);
+            int p = 0;
             for (int i = 0; i < players.Length; i++)
             {
                 Player currPlayer = players[i];
@@ -59,6 +64,7 @@ namespace BombermanServer
                 outmsg.Write((byte)currPlayer.MoveDirection);
                 outmsg.WriteVariableInt32(currPlayer.Position.X);
                 outmsg.WriteVariableInt32(currPlayer.Position.Y);
+                p++;
             }
             foreach (Bomb bomb in bombs)
             {
@@ -67,13 +73,13 @@ namespace BombermanServer
                 outmsg.Write((byte)bomb.CenterGrid.Y);
                 outmsg.WriteVariableInt64(bomb.DetonateTime.Ticks);
             }
-            outmsg.Write(0xff);
+            outmsg.Write((byte)0xff);
             foreach (Box box in DestroyedBoxes)
             {
                 outmsg.Write((byte)box.CenterGrid.X);
                 outmsg.Write((byte)box.CenterGrid.Y);
             }
-            outmsg.Write(0xff);
+            outmsg.Write((byte)0xff);
             return outmsg;
         }
 
