@@ -30,8 +30,8 @@ namespace BombermanServer
             base.Initialize();
 
 
-            //Form MyGameForm = (Form)Form.FromHandle(Window.Handle);
-            //MyGameForm.Opacity = 0;
+            Form MyGameForm = (Form)Form.FromHandle(Window.Handle);
+            MyGameForm.Opacity = 0;
         }
 
         protected override void LoadContent()

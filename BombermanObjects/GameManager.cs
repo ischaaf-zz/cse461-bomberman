@@ -182,6 +182,8 @@ namespace BombermanObjects
                 Bomb b = CreateBomb(x, y, new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3)), 3, p, BOX_WIDTH);
                 collider.RegisterStatic(b);
                 bombs.Add(b);
+                TimeSpan det = new TimeSpan(detTime);
+                Console.WriteLine($"Bomb det at: {detTime.ToString("c")}");
             }
         }
 

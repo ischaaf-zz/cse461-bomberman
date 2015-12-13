@@ -24,11 +24,16 @@ namespace BombermanClient
         LocalInput input = new LocalInput();
         NetConnection serverConnection;
 
+        protected TimeSpan TimeOffset;
+
+        SolidColorTexture WaitFilter;
+
         NetClient client;
         private bool gameStarted;
         private string hostIP { get; set; }
         private int port { get; set; }
         private Player.Direction LastMove = Player.Direction.Center;
+        private int frame;
 
         public BombermanGame(string hostIp, int port) : base()
         {
@@ -40,6 +45,7 @@ namespace BombermanClient
             graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;   // set this value to the desired height of your window
             graphics.ApplyChanges();
+            
         }
 
         protected override void Initialize()
@@ -59,40 +65,9 @@ namespace BombermanClient
 
 
             serverConnection = client.Connect(hostIP, port, outmsg);
-            Thread.Sleep(2000);
-            bool awaitingAssignment = true;
-            while (awaitingAssignment)
-            {
-                NetIncomingMessage inc;
-                if ((inc = client.ReadMessage()) != null)
-                {
-                    switch (inc.MessageType)
-                    {
-                        case NetIncomingMessageType.Data:
-                            int sid = inc.ReadByte();
-                            PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
-                            Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
-                            if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
-                            {
-                                playerId = inc.ReadByte();
-                                for (int i = 1; i <= playerId; i++)
-                                {
-                                    manager.AddPlayer(i);
-                                }
-                                Console.WriteLine($"Assigned player: {playerId}");
-                                totalPlayers = playerId;
-                            }
-                            awaitingAssignment = false;
-                            break;
-                        case NetIncomingMessageType.StatusChanged:
-                            Console.WriteLine("Extra packet");
-                            break;
-                        default:
-                            Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
-                            break;
-                    }
-                }
-            }
+            Thread.Sleep(100);
+
+            waitForAssignment();
 
         }
 
@@ -109,13 +84,16 @@ namespace BombermanClient
             textureMap["explosion"] = Content.Load<Texture2D>("explosion");
             textureMap["box"] = Content.Load<Texture2D>("box");
             textureMap["powerups"] = Content.Load<Texture2D>("powerups");
+            WaitFilter = new SolidColorTexture(GraphicsDevice, new Color(Color.Gray, 100));
             manager = new GraphicalGameManager(4, textureMap);
             manager.InitializeBare();
         }
 
         protected override void Update(GameTime gameTime)
         {
-
+            if (frame % 60 == 0)
+                Console.WriteLine(gameTime.TotalGameTime.ToString("c"));
+            frame++;
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (gameTime.IsRunningSlowly)
@@ -179,6 +157,7 @@ namespace BombermanClient
                                 break;
                             case PacketTypeEnums.PacketType.GAME_START:
                                 gameStarted = true;
+                                TimeOffset = gameTime.TotalGameTime;
                                 Console.WriteLine("Game starting...");
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE:
@@ -227,7 +206,7 @@ namespace BombermanClient
                 int maxBombs = inc.ReadByte();
                 int placedBombs = inc.ReadByte();
                 int bombPower = inc.ReadByte();
-                long immune = inc.ReadVariableInt64();
+                long immune = inc.ReadVariableInt64() + TimeOffset.Ticks;
                 Player.Direction dir = (Player.Direction)inc.ReadByte();
                 int x = inc.ReadVariableInt32();
                 int y = inc.ReadVariableInt32();
@@ -241,7 +220,7 @@ namespace BombermanClient
                 int x = inc.ReadByte();
                 int y = inc.ReadByte();
                 long detTime = inc.ReadVariableInt64();
-                manager.PlaceBombOrUpdate(player, x, y, detTime);
+                manager.PlaceBombOrUpdate(player, x, y, detTime + TimeOffset.Ticks);
             }
             inc.ReadByte();
 
@@ -266,12 +245,57 @@ namespace BombermanClient
 
             if (!gameStarted)
             {
-                
+                spritebatch.Draw(WaitFilter, new Rectangle(0, 0, GameManager.BOX_WIDTH * GameManager.GAME_SIZE, GameManager.BOX_WIDTH * GameManager.GAME_SIZE), Color.White);
             }
 
             spritebatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void waitForAssignment()
+        {
+            bool awaitingAssignment = true;
+            while (awaitingAssignment)
+            {
+                NetIncomingMessage inc;
+                if ((inc = client.ReadMessage()) != null)
+                {
+                    switch (inc.MessageType)
+                    {
+                        case NetIncomingMessageType.Data:
+                            int sid = inc.ReadByte();
+                            PacketTypeEnums.PacketType type = (PacketTypeEnums.PacketType)(inc.ReadByte());
+                            Console.WriteLine($"Packet Type: {inc.MessageType} SID: {sid} type: {type}");
+                            if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
+                            {
+                                playerId = inc.ReadByte();
+                                for (int i = 1; i <= playerId; i++)
+                                {
+                                    manager.AddPlayer(i);
+                                }
+                                Console.WriteLine($"Assigned player: {playerId}");
+                                totalPlayers = playerId;
+                            }
+                            awaitingAssignment = false;
+                            break;
+                        case NetIncomingMessageType.StatusChanged:
+                            Console.WriteLine("Extra packet");
+                            break;
+                        default:
+                            Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void waitForStart()
+        {
+            while (!gameStarted)
+            {
+
+            }
         }
     }
 }

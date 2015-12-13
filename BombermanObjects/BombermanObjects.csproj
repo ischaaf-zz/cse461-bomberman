@@ -108,6 +108,7 @@
     <Compile Include="PlayerInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Logical\Wall.cs" />
+    <Compile Include="SolidColorTexture.cs" />
     <Compile Include="Utilites.cs" />
   </ItemGroup>
   <ItemGroup>
