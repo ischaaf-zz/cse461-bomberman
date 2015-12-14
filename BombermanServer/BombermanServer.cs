@@ -14,11 +14,11 @@ namespace BombermanServer
         public bool gameActive;
         ServerGameManager manager;
         NetPeerConfiguration config;
-        NetServer server;
+        public NetServer server;
         int totalPlayers;
         int playersConnected;
         NetConnection[] playerConnections;
-        PlayerInfo[] playerInfoArr;
+        public PlayerInfo[] playerInfoArr;
         ServerGameRunner runner;
 
         public BombermanServer(int players, int port)
@@ -140,14 +140,14 @@ namespace BombermanServer
             Thread.Sleep(1000);
             Console.WriteLine("Starting game...");
 
-            for (int i = 0; i < playersConnected; i++)
-            {
-                Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
-                NetOutgoingMessage newPlayerMsg = server.CreateMessage();
-                newPlayerMsg.Write((byte)0);
-                newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.GAME_START);
-                server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
-            }
+            //for (int i = 0; i < playersConnected; i++)
+            //{
+            //    Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
+            //    NetOutgoingMessage newPlayerMsg = server.CreateMessage();
+            //    newPlayerMsg.Write((byte)0);
+            //    newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.GAME_START);
+            //    server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+            //}
             runner.Run();
             // while connected clients less than players
             //  accept connection
@@ -193,7 +193,7 @@ namespace BombermanServer
 
                         case NetIncomingMessageType.Data:
                             // handle custom messages
-                            Console.WriteLine("incoming data");
+                            //Console.WriteLine("incoming data");
                             int senderID = inc.ReadByte();
                             if (senderID <= 0 || senderID > playersConnected)
                             {
@@ -242,11 +242,11 @@ namespace BombermanServer
             if (eventType == (byte)PacketTypeEnums.EventType.EVENT_MOVE)
             {
                 BombermanObjects.Logical.Player.Direction dir = (BombermanObjects.Logical.Player.Direction)inc.ReadByte();
-                Console.WriteLine($"moving player {playerID} {dir}");
+                //Console.WriteLine($"moving player {playerID} {dir}");
                 manager.MovePlayer(playerID - 1, dir);
             } else if (eventType == (byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT)
             {
-                Console.WriteLine($"Player {playerID} has placed a bomb");
+                //Console.WriteLine($"Player {playerID} has placed a bomb");
                 manager.players[playerID - 1].placeBomb(gameTime);
             }
         }

@@ -91,15 +91,8 @@ namespace BombermanClient
 
         protected override void Update(GameTime gameTime)
         {
-            if (frame % 60 == 0)
-                Console.WriteLine(gameTime.TotalGameTime.ToString("c"));
-            frame++;
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            if (gameTime.IsRunningSlowly)
-            {
-                Console.WriteLine("Lagging");
-            }
 
             if (gameStarted)
             {
@@ -107,7 +100,6 @@ namespace BombermanClient
                 var current = input.CurrentInput;
                 var curM = current.Move.Length > 0 ? current.Move[0] : Player.Direction.Center;
      
-                //Console.WriteLine($"{curM} {manager.players[playerId - 1].MoveDirection}");
                 if (manager.players[playerId - 1].MoveDirection != curM) //  && curM != LastMove
                 {
                     // send Move;
@@ -157,7 +149,9 @@ namespace BombermanClient
                                 break;
                             case PacketTypeEnums.PacketType.GAME_START:
                                 gameStarted = true;
+                                Console.WriteLine($"Offset set at: {gameTime.TotalGameTime.ToString("g")}");
                                 TimeOffset = gameTime.TotalGameTime;
+                                frame = 1;
                                 Console.WriteLine("Game starting...");
                                 break;
                             case PacketTypeEnums.PacketType.GAME_STATE:
@@ -190,6 +184,11 @@ namespace BombermanClient
 
             if (gameStarted)
             {
+                if (frame == 1)
+                {
+                    frame = 2;
+                    Console.WriteLine($"First update loop at: {gameTime.TotalGameTime.ToString("g")}");
+                }
                 manager.Update(gameTime);
             }
             // TODO Update game logic
@@ -225,16 +224,16 @@ namespace BombermanClient
             inc.ReadByte();
 
             // read box info
-            while (inc.PeekByte() != 0xff)
-            {
-                int x = inc.ReadByte();
-                int y = inc.ReadByte();
-                if (manager.statics.IsItemAtPoint(new Point(x, y)))
-                {
-                    //manager.DestroyBox(x, y);
-                }
-            }
-            inc.ReadByte();
+            //while (inc.PeekByte() != 0xff)
+            //{
+            //    int x = inc.ReadByte();
+            //    int y = inc.ReadByte();
+            //    if (manager.statics.IsItemAtPoint(new Point(x, y)))
+            //    {
+            //        //manager.DestroyBox(x, y);
+            //    }
+            //}
+            //inc.ReadByte();
         }
 
         protected override void Draw(GameTime gameTime)

@@ -86,6 +86,7 @@ namespace BombermanObjects.Logical
                 manager.explosions.GetAtPoint(ps[3])?.Count > 0))
             {
                 Lives--;
+                Console.WriteLine("Player lost a life");
                 ImmuneTill = gametime.TotalGameTime.Add(new TimeSpan(0, 0, 1));
             }
             // check for powerups
@@ -141,7 +142,7 @@ namespace BombermanObjects.Logical
             }
             int x = position.Center.X / position.Width;
             int y = position.Center.Y / position.Height;
-            if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)))
+            if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)) && !manager.explosions.IsItemAtPoint(new Point(x, y)))
             {
                 Bomb b = new Bomb(
                     manager,

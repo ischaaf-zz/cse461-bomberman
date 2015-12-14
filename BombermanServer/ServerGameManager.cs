@@ -78,12 +78,12 @@ namespace BombermanServer
                 outmsg.WriteVariableInt64(bomb.DetonateTime.Ticks);
             }
             outmsg.Write((byte)0xff);
-            foreach (Box box in DestroyedBoxes)
-            {
-                outmsg.Write((byte)box.CenterGrid.X);
-                outmsg.Write((byte)box.CenterGrid.Y);
-            }
-            outmsg.Write((byte)0xff);
+            //foreach (Box box in DestroyedBoxes)
+            //{
+            //    outmsg.Write((byte)box.CenterGrid.X);
+            //    outmsg.Write((byte)box.CenterGrid.Y);
+            //}
+            //outmsg.Write((byte)0xff);
             return outmsg;
         }
 

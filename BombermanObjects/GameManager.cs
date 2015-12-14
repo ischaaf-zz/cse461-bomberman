@@ -174,16 +174,17 @@ namespace BombermanObjects
         public void PlaceBombOrUpdate(int player, int x, int y, long detTime)
         {
             Player p = players[player];
-            if (bombs.IsItemAtPoint(new Point(x, y)))
+            if (bombs.IsItemAtPoint(new Point(x, y)) || explosions.IsItemAtPoint(new Point(x, y)))
             {
                 return;
             } else
             {
-                Bomb b = CreateBomb(x, y, new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3)), 3, p, BOX_WIDTH);
+                TimeSpan t = new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3));
+                Console.WriteLine($"Bomb placed at: {t.ToString("g")}");
+                Bomb b = CreateBomb(x, y, t, 3, p, BOX_WIDTH);
                 collider.RegisterStatic(b);
                 bombs.Add(b);
                 TimeSpan det = new TimeSpan(detTime);
-                Console.WriteLine($"Bomb det at: {detTime.ToString("c")}");
             }
         }
 
@@ -304,6 +305,7 @@ namespace BombermanObjects
 
         public virtual void ExplodeBomb(GameTime gametime, Bomb b)
         {
+            Console.WriteLine("Bomb exploded");
             bombs.Remove(b);
             collider.UnRegisterStatic(b);
             b.placedBy.PlacedBombs--;

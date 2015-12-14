@@ -1,4 +1,5 @@
 ﻿using BombermanObjects;
+using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,14 @@ namespace BombermanServer
 
             Form MyGameForm = (Form)Form.FromHandle(Window.Handle);
             MyGameForm.Opacity = 0;
+            for (int i = 0; i < Server.playerInfoArr.Length; i++)
+            {
+                Console.WriteLine($"Broadcasting to connected player {i + 1} that game has started");
+                NetOutgoingMessage newPlayerMsg = Server.server.CreateMessage();
+                newPlayerMsg.Write((byte)0);
+                newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.GAME_START);
+                Server.server.SendMessage(newPlayerMsg, Server.playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+            }
         }
 
         protected override void LoadContent()
