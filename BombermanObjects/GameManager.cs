@@ -54,9 +54,9 @@ namespace BombermanObjects
             this.players = new Player[players];
             PlayerNumbers = new Dictionary<Player, int>();
             input = new LocalInput();
-            TotalBombCap = 15;
-            TotalBombPow = 20;
-            TotalSpeed = 10;
+            TotalBombCap = 15 - 3;
+            TotalBombPow = 20 - 5;
+            TotalSpeed = 10 - 2;
         }
 
         public Player AddPlayer(int number)
