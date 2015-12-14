@@ -49,7 +49,7 @@ namespace BombermanObjects.Logical
         {
             position = pos;
             // start: 3, end: 7_
-            Speed = 3;
+            Speed = 2;
             Lives = 2;
             MaxBombs = 1;
             BombPower = 2;
