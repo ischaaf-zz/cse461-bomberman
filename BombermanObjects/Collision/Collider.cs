@@ -140,7 +140,8 @@ namespace BombermanObjects.Collision
                     }
                     break;
             }
-            m2 = remaining - m1;
+            m1 = Math.Min(m1, maxMove.Move);
+            m2 = Math.Min(remaining - m1, maxMove.Move);
             if (m1 == 0 && d2 == Player.Direction.Center)
                 return new Movement[0];
             else if (m2 == 0)
