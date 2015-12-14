@@ -50,7 +50,7 @@ namespace BombermanObjects.Logical
                     p.BombPower++;
                     break;
                 case PowerUpType.Speed:
-                    p.Speed = Math.Min(6, p.Speed + 1);
+                    p.Speed = Math.Min(5, p.Speed + 1);
                     break;
             }
         }
