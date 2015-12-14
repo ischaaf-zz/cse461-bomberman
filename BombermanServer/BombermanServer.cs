@@ -317,6 +317,22 @@ namespace BombermanServer
             {
                 //Console.WriteLine($"Player {playerID} has placed a bomb");
                 manager.players[playerID - 1].placeBomb(gameTime);
+                PrintLatency();
+            } else
+            {
+                // unknown event
+                Console.WriteLine($"received unknown event");
+            }
+        }
+
+        public void PrintLatency()
+        {
+            for (int i = 0; i < totalPlayers; i++)
+            {
+                if (playerInfoArr[i] != null)
+                {
+                    Console.WriteLine($"Player {i + 1} latency: {playerInfoArr[i].playerConnection.AverageRoundtripTime}");
+                }
             }
         }
     }
