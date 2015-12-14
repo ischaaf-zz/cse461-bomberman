@@ -15,7 +15,9 @@ namespace BombermanObjects
             GAME_STATE_FULL, 
             SEND_PLAYER_ID,
             NEW_PLAYER_ID, 
-            GAME_START
+            GAME_START,
+            PLAYER_DISCONNECTION,
+            CLIENT_IS_ALIVE
         };
 
         public enum EventType : byte

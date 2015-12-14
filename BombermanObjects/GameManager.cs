@@ -72,6 +72,18 @@ namespace BombermanObjects
             }
         }
 
+        public Boolean DeletePlayer(int number)
+        {
+            if (players[number - 1] != null)
+            {
+                players[number - 1] = null;
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
         public virtual void Initialize()
         {
             InitializeBare();

@@ -144,6 +144,12 @@ namespace BombermanClient
                                 Console.WriteLine($"New player added, {totalPlayers} players total");
                                 manager.AddPlayer(inc.ReadByte());
                                 break;
+                            case PacketTypeEnums.PacketType.PLAYER_DISCONNECTION:
+                                totalPlayers--;
+                                int disconnectedPlayerId = inc.ReadByte();
+                                Console.WriteLine($"player {disconnectedPlayerId} has disconnected...removing from game");
+                                manager.DeletePlayer(disconnectedPlayerId);
+                                break;
                             case PacketTypeEnums.PacketType.EVENT:
                                 Console.WriteLine("Event received");
                                 break;
@@ -166,17 +172,19 @@ namespace BombermanClient
                                     PowerUp.PowerUpType powerup = (PowerUp.PowerUpType)inc.ReadByte();
                                     manager.PlaceBox(x, y, powerup);
                                 }
-                                
-                                
+                                break;
+                            case PacketTypeEnums.PacketType.CLIENT_IS_ALIVE:
+                                Console.WriteLine($"CLIENT_IS_ALIVE Packet");
                                 break;
                             default:
+                                Console.WriteLine($"unknown packet type");
                                 break;
                         }
 
                         //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
                         break;
                     default:
-                        Console.WriteLine("Default case");
+                        Console.WriteLine("Default case in update");
                         break;
                 }
             }
@@ -198,8 +206,10 @@ namespace BombermanClient
         private void UpdateGameState(NetIncomingMessage inc)
         {
             // read player info
-            for (int i = 0; i < totalPlayers; i++)
+            //for (int i = 0; i < totalPlayers; i++)
+            while (inc.PeekByte() != (byte)0xff)
             {
+                int playerId = inc.ReadByte();
                 int speed = inc.ReadByte();
                 int lives = inc.ReadByte();
                 int maxBombs = inc.ReadByte();
@@ -209,9 +219,9 @@ namespace BombermanClient
                 Player.Direction dir = (Player.Direction)inc.ReadByte();
                 int x = inc.ReadVariableInt32();
                 int y = inc.ReadVariableInt32();
-                manager.OverridePlayer(i, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, x, y);
+                manager.OverridePlayer(playerId, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, x, y);
             }
-
+            inc.ReadByte();
             // read bomb info
             while (inc.PeekByte() != 0xff)
             {
@@ -269,12 +279,22 @@ namespace BombermanClient
                             if (type == PacketTypeEnums.PacketType.SEND_PLAYER_ID)
                             {
                                 playerId = inc.ReadByte();
-                                for (int i = 1; i <= playerId; i++)
+                                //for (int i = 1; i <= playerId; i++)
+                                //{
+                                //    manager.AddPlayer(i);
+                                //}
+                                totalPlayers = 1;
+                                manager.AddPlayer(playerId);
+                                while (inc.PeekByte() != 0xff)
                                 {
-                                    manager.AddPlayer(i);
+                                    int currConnectedPlayerId = inc.ReadByte();
+                                    Console.WriteLine($"player {currConnectedPlayerId} is connected to the server");
+                                    manager.AddPlayer(currConnectedPlayerId);
+                                    totalPlayers++;
                                 }
+                                inc.ReadByte();
                                 Console.WriteLine($"Assigned player: {playerId}");
-                                totalPlayers = playerId;
+                                //totalPlayers = playerId;
                             }
                             awaitingAssignment = false;
                             break;

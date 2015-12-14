@@ -2,6 +2,7 @@
 using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace BombermanServer
@@ -20,6 +21,7 @@ namespace BombermanServer
         NetConnection[] playerConnections;
         public PlayerInfo[] playerInfoArr;
         ServerGameRunner runner;
+        Stack<int> unassignedPlayerIds; // 1 based
 
         public BombermanServer(int players, int port)
         {
@@ -37,19 +39,42 @@ namespace BombermanServer
             totalPlayers = players;
             playersConnected = 0;
             playerConnections = new NetConnection[players];
+            unassignedPlayerIds = new Stack<int>();
+            for (int i = players; i >= 0; i--)
+            {
+                unassignedPlayerIds.Push(i + 1);
+            }
+            server.Configuration.ConnectionTimeout = 5;
         }
         
+        public static void FillOutMsgHeader(NetOutgoingMessage outmsg, int sid, PacketTypeEnums.PacketType packetType)
+        {
+            outmsg.Write((byte)sid);
+            outmsg.Write((byte)packetType);
+        }
+
         public void Start()
         {
             server.Start();
             Console.WriteLine("waiting for client connections");
             while (!gameActive)
             {
-                
+
                 //server.GetConnection
                 NetIncomingMessage message;
                 while ((message = server.ReadMessage()) != null && !gameActive)
                 {
+                    for (int i = 0; i < totalPlayers; i++)
+                    {
+                        if (playerInfoArr[i] != null)
+                        {
+                            NetOutgoingMessage outmsg = server.CreateMessage();
+                            FillOutMsgHeader(outmsg, 0, PacketTypeEnums.PacketType.CLIENT_IS_ALIVE);
+                            server.SendMessage(outmsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableSequenced, 0);
+                            //Console.WriteLine($"player {i + 1} status: {playerInfoArr[i].playerConnection.Status}");
+                        }
+                    }
+                    Thread.Sleep(100);
                     switch (message.MessageType)
                     {
                         case NetIncomingMessageType.ConnectionApproval:
@@ -69,15 +94,28 @@ namespace BombermanServer
                             if (data.Equals(LOGIN_MSG))
                             {
                                 playersConnected++;
-                                manager.AddPlayer(playersConnected);
+                                int currPlayerId = unassignedPlayerIds.Pop();
+                                manager.AddPlayer(currPlayerId);
                                 NetConnection playerConnection = message.SenderConnection;
-                                playerInfoArr[playersConnected - 1] = new PlayerInfo(playerConnection, playersConnected, playerConnection.AverageRoundtripTime);
+                                playerInfoArr[currPlayerId - 1] = new PlayerInfo(playerConnection, playersConnected, playerConnection.AverageRoundtripTime);
 
                                 NetOutgoingMessage outmsg = server.CreateMessage();
                                 // senderID, PacketType, ID
-                                outmsg.Write((byte)0);
-                                outmsg.Write((byte)PacketTypeEnums.PacketType.SEND_PLAYER_ID);
-                                outmsg.Write((byte)playersConnected);
+                                FillOutMsgHeader(outmsg, 0, PacketTypeEnums.PacketType.SEND_PLAYER_ID);
+                                outmsg.Write((byte)currPlayerId);
+                                Console.WriteLine("accepted Connection from: " + playerConnection);
+                                Console.WriteLine("assigning playerID: " + currPlayerId);
+                                Console.WriteLine($"broadcasting to player {currPlayerId} the following connected players:");
+                                for (int i = 0; i < totalPlayers; i++)
+                                {
+                                    if (playerInfoArr[i] != null && currPlayerId - 1 != i)
+                                    {
+                                        outmsg.Write((byte)(i + 1));
+                                        Console.Write($"player {i + 1}, ");
+                                    }
+                                }
+                                Console.WriteLine();
+                                outmsg.Write((byte)0xff);
                                 // we don't want this to be lost, so set level to ReliableOrdered
                                 Console.WriteLine($"Connection Status: {playerConnection.Status}");
                                 Thread.Sleep(100);
@@ -85,18 +123,19 @@ namespace BombermanServer
                                 Thread.Sleep(100);
                                 server.SendMessage(manager.GetFullGameState(), playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 server.FlushSendQueue();
-                                Console.WriteLine("accepted Connection from: " + playerConnection);
-                                Console.WriteLine("assigning playerID: " + playersConnected);
+                                
 
                                 
-                                for (int i = 0; i < playersConnected - 1; i++)
+                                for (int i = 0; i < totalPlayers; i++)
                                 {
-                                    Console.WriteLine($"Broadcasting to connected player {i + 1} that new player {playersConnected} has connected");
-                                    NetOutgoingMessage newPlayerMsg = server.CreateMessage();
-                                    newPlayerMsg.Write((byte)0);
-                                    newPlayerMsg.Write((byte)PacketTypeEnums.PacketType.NEW_PLAYER_ID);
-                                    newPlayerMsg.Write((byte)playersConnected);
-                                    server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                    if (playerInfoArr[i] != null && i != currPlayerId - 1)
+                                    {
+                                        Console.WriteLine($"Broadcasting to connected player {i + 1} that new player {currPlayerId} has connected");
+                                        NetOutgoingMessage newPlayerMsg = server.CreateMessage();
+                                        FillOutMsgHeader(newPlayerMsg, 0, PacketTypeEnums.PacketType.NEW_PLAYER_ID);
+                                        newPlayerMsg.Write((byte)currPlayerId);
+                                        server.SendMessage(newPlayerMsg, playerInfoArr[i].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                    }   
                                 }
                             }
                             break;
@@ -106,6 +145,35 @@ namespace BombermanServer
 
                         case NetIncomingMessageType.StatusChanged:
                             // handle connection status messages
+                            Console.WriteLine($"status change: {message.ReadString()}");
+                            for (int i = 0; i < totalPlayers; i++)
+                            {
+                                //Console.WriteLine($"hi{i}")
+
+                                if (playerInfoArr[i] != null &&
+                                    (playerInfoArr[i].playerConnection.Status != NetConnectionStatus.Connected &&
+                                    playerInfoArr[i].playerConnection.Status != NetConnectionStatus.RespondedConnect &&
+                                    playerInfoArr[i].playerConnection.Status != NetConnectionStatus.RespondedAwaitingApproval) &&
+                                    !unassignedPlayerIds.Contains(i + 1))
+                                {
+                                    Console.WriteLine($"Player {i + 1} has disconnected, status: {playerInfoArr[i].playerConnection.Status}");
+                                    playersConnected--;
+                                    manager.DeletePlayer(i + 1);
+                                    playerInfoArr[i] = null;
+                                    unassignedPlayerIds.Push(i + 1);
+                                    for (int j = 0; j < totalPlayers; j++)
+                                    {
+                                        if (playerInfoArr[j] != null && j != i)
+                                        {
+                                            Console.WriteLine($"broadcasting to player {j + 1} that player {i + 1} has disconnected");
+                                            NetOutgoingMessage outmsg = server.CreateMessage();
+                                            FillOutMsgHeader(outmsg, 0, PacketTypeEnums.PacketType.PLAYER_DISCONNECTION);
+                                            outmsg.Write((byte)(i + 1));
+                                            server.SendMessage(outmsg, playerInfoArr[j].playerConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                        }
+                                    }
+                                }
+                            }
                             break;
 
                         case NetIncomingMessageType.DebugMessage:
@@ -121,6 +189,7 @@ namespace BombermanServer
                             Console.WriteLine(message.ReadString());
                             break;
                     }
+                    
                     if (playersConnected >= totalPlayers)
                     {
                         gameActive = true;

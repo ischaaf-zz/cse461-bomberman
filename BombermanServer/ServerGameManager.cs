@@ -53,23 +53,28 @@ namespace BombermanServer
         public NetOutgoingMessage GetPackagedGameState()
         {
             NetOutgoingMessage outmsg = server.CreateMessage();
-            outmsg.Write((byte)0);
-            outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE);
+            BombermanServer.FillOutMsgHeader(outmsg, 0, PacketTypeEnums.PacketType.GAME_STATE);
+            //outmsg.Write((byte)0);
+            //outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE);
             int p = 0;
             for (int i = 0; i < players.Length; i++)
             {
-                Player currPlayer = players[i];
-                outmsg.Write((byte)currPlayer.Speed);
-                outmsg.Write((byte)currPlayer.Lives);
-                outmsg.Write((byte)currPlayer.MaxBombs);
-                outmsg.Write((byte)currPlayer.PlacedBombs);
-                outmsg.Write((byte)currPlayer.BombPower);
-                outmsg.WriteVariableInt64(currPlayer.ImmuneTill.Ticks);
-                outmsg.Write((byte)currPlayer.MoveDirection);
-                outmsg.WriteVariableInt32(currPlayer.Position.X);
-                outmsg.WriteVariableInt32(currPlayer.Position.Y);
-                p++;
+                if (players[i] != null) {
+                    Player currPlayer = players[i];
+                    outmsg.Write((byte)i);
+                    outmsg.Write((byte)currPlayer.Speed);
+                    outmsg.Write((byte)currPlayer.Lives);
+                    outmsg.Write((byte)currPlayer.MaxBombs);
+                    outmsg.Write((byte)currPlayer.PlacedBombs);
+                    outmsg.Write((byte)currPlayer.BombPower);
+                    outmsg.WriteVariableInt64(currPlayer.ImmuneTill.Ticks);
+                    outmsg.Write((byte)currPlayer.MoveDirection);
+                    outmsg.WriteVariableInt32(currPlayer.Position.X);
+                    outmsg.WriteVariableInt32(currPlayer.Position.Y);
+                    p++;
+                }
             }
+            outmsg.Write((byte)0xff);
             foreach (Bomb bomb in bombs)
             {
                 outmsg.Write((byte)PlayerNumbers[bomb.placedBy]);
@@ -90,8 +95,9 @@ namespace BombermanServer
         public NetOutgoingMessage GetFullGameState()
         {
             NetOutgoingMessage outmsg = server.CreateMessage();
-            outmsg.Write((byte)0);
-            outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
+            BombermanServer.FillOutMsgHeader(outmsg, 0, PacketTypeEnums.PacketType.GAME_STATE_FULL);
+            //outmsg.Write((byte)0);
+            //outmsg.Write((byte)PacketTypeEnums.PacketType.GAME_STATE_FULL);
             
             foreach (var item in this.statics)
             {
