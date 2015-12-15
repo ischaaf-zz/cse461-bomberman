@@ -11,7 +11,7 @@ namespace BombermanObjects.Logical
     {
         public enum PowerUpType
         {
-            None, Speed, BombCap, BombPower
+            None, Speed, BombCap, BombPower, AutoBomb, Pierce, BombPass
         }
 
         protected int xPos;
@@ -51,6 +51,15 @@ namespace BombermanObjects.Logical
                     break;
                 case PowerUpType.Speed:
                     p.Speed = Math.Min(5, p.Speed + 1);
+                    break;
+                case PowerUpType.AutoBomb:
+                    p.AutoBomb = true;
+                    break;
+                case PowerUpType.Pierce:
+                    p.Pierce = true;
+                    break;
+                case PowerUpType.BombPass:
+                    p.BombPass = true;
                     break;
             }
         }

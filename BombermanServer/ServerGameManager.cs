@@ -67,6 +67,7 @@ namespace BombermanServer
                     outmsg.Write((byte)currPlayer.MaxBombs);
                     outmsg.Write((byte)currPlayer.PlacedBombs);
                     outmsg.Write((byte)currPlayer.BombPower);
+                    outmsg.Write(currPlayer.BombPass);
                     outmsg.WriteVariableInt64(currPlayer.ImmuneTill.Ticks);
                     outmsg.Write((byte)currPlayer.MoveDirection);
                     outmsg.WriteVariableInt32(currPlayer.Position.X);

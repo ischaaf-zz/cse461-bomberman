@@ -28,6 +28,15 @@ namespace BombermanObjects.Drawable
                 case PowerUpType.Speed:
                     off = 1;
                     break;
+                case PowerUpType.AutoBomb:
+                    off = 4;
+                    break;
+                case PowerUpType.BombPass:
+                    off = 3;
+                    break;
+                case PowerUpType.Pierce:
+                    off = 5;
+                    break;
             }
             textureRect = new Rectangle(off * GameManager.BOX_WIDTH, 0, GameManager.BOX_WIDTH, GameManager.BOX_WIDTH);
         }

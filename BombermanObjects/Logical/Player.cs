@@ -30,6 +30,12 @@ namespace BombermanObjects.Logical
 
         public bool CanKick { get; set; }
 
+        public bool AutoBomb { get; set; }
+
+        public bool BombPass { get; set; }
+
+        public bool Pierce { get; set; }
+
         public Direction MoveDirection { get; set; }
 
         // added for server communication.

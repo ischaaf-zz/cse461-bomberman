@@ -39,6 +39,7 @@ namespace BombermanObjects
         public int TotalBombCap { get; set; }
         public int TotalBombPow { get; set; }
         public int TotalSpeed { get; set; }
+        public int TotalBombPass { get; set; }
 
         public List<Box> DestroyedBoxes { get; set; }
 
@@ -54,9 +55,11 @@ namespace BombermanObjects
             this.players = new Player[players];
             PlayerNumbers = new Dictionary<Player, int>();
             input = new LocalInput();
-            TotalBombCap = 15 - 3;
-            TotalBombPow = 20 - 5;
+            TotalBombCap = 15 - 5;
+            TotalBombPow = 20 - 10;
             TotalSpeed = 10 - 2;
+            TotalBombPass = 2;
+
         }
 
         public Player AddPlayer(int number)
@@ -124,6 +127,11 @@ namespace BombermanObjects
                 boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.Speed, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
                 index++;
             }
+            for (int i = 0; i < TotalBombPass; i++)
+            {
+                boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.BombPass, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
+                index++;
+            }
         }
 
         public virtual void InitializeBare()
@@ -169,13 +177,14 @@ namespace BombermanObjects
             return true;
         }
 
-        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, int placedB, long immune, Player.Direction moveD, int x, int y)
+        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, bool bp, int placedB, long immune, Player.Direction moveD, int x, int y)
         {
             Player p = players[player];
             p.Speed = speed;
             p.Lives = lives;
             p.MaxBombs = maxB;
             p.BombPower = bPower;
+            p.BombPass = bp;
             p.PlacedBombs = placedB;
             p.ImmuneTill = new TimeSpan(immune);
             p.MoveDirection = moveD;

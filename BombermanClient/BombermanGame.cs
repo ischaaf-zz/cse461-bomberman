@@ -57,22 +57,8 @@ namespace BombermanClient
             NetPeerConfiguration config = new NetPeerConfiguration("game");
             client = new NetClient(config);
             client.Configuration.ReceiveBufferSize = 500;
-            int i = 0;
-            while (i < 5)
-            {
-                try
-                {
-                    client.Start();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to connect");
-                    Thread.Sleep(200);
-                    i++;
-                    continue;
-                }
-                break;
-            }
+
+            client.Start();
 
             NetOutgoingMessage outmsg = client.CreateMessage();
             outmsg.Write("Login message");
@@ -229,11 +215,12 @@ namespace BombermanClient
                 int maxBombs = inc.ReadByte();
                 int placedBombs = inc.ReadByte();
                 int bombPower = inc.ReadByte();
+                bool bombPass = inc.ReadBoolean();
                 long immune = inc.ReadVariableInt64() + TimeOffset.Ticks;
                 Player.Direction dir = (Player.Direction)inc.ReadByte();
                 int x = inc.ReadVariableInt32();
                 int y = inc.ReadVariableInt32();
-                manager.OverridePlayer(playerId, lives, speed, maxBombs, bombPower, placedBombs, immune, dir, x, y);
+                manager.OverridePlayer(playerId, lives, speed, maxBombs, bombPower, bombPass, placedBombs, immune, dir, x, y);
             }
             inc.ReadByte();
             // read bomb info

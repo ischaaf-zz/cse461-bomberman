@@ -25,9 +25,20 @@ namespace BombermanObjects.Collision
             this.height = height;
         }
 
+        private bool CanMove(int x, int y, bool bPass)
+        {
+            if (!blocks.IsItemAtPoint(new Point(x, y)))
+            {
+                return true;
+            } else
+            {
+                return (blocks.GetAtPoint(new Point(x, y)) is Bomb) && bPass;
+            }
+        }
+
         Movement[] ICollider.Move(IGameObject obj, Movement maxMove)
         {
-
+            bool BombPass = (obj as Player) != null ? (obj as Player).BombPass : false;
             var rect = obj.Position;
             int remaining = maxMove.Move;
             int m1 = 0;
@@ -52,7 +63,7 @@ namespace BombermanObjects.Collision
                 case Player.Direction.North:
                     d1 = Player.Direction.North;
                     d2 = Player.Direction.North;
-                    canMove = !blocks.IsItemAtPoint(new Point(rect.Center.X / dim, (rect.Top - maxMove.Move) / dim));
+                    canMove = CanMove(rect.Center.X / dim, (rect.Top - maxMove.Move) / dim, BombPass);
                     if (canMove)
                     { 
                         if (left < right)
@@ -73,7 +84,7 @@ namespace BombermanObjects.Collision
                 case Player.Direction.South:
                     d1 = Player.Direction.South;
                     d2 = Player.Direction.South;
-                    canMove = !blocks.IsItemAtPoint(new Point(rect.Center.X / dim, (rect.Bottom + maxMove.Move) / dim));
+                    canMove = CanMove(rect.Center.X / dim, (rect.Bottom + maxMove.Move) / dim, BombPass);
                     if (canMove)
                     {
                         if (left < right)
@@ -96,7 +107,7 @@ namespace BombermanObjects.Collision
                 case Player.Direction.East:
                     d1 = Player.Direction.East;
                     d2 = Player.Direction.East;
-                    canMove = !blocks.IsItemAtPoint(new Point((rect.Right + maxMove.Move) / dim, rect.Center.Y / dim));
+                    canMove = CanMove((rect.Right + maxMove.Move) / dim, rect.Center.Y / dim, BombPass);
                     if (canMove)
                     {
                         if (top < bot)
@@ -119,7 +130,7 @@ namespace BombermanObjects.Collision
                 case Player.Direction.West:
                     d1 = Player.Direction.West;
                     d2 = Player.Direction.West;
-                    canMove = !blocks.IsItemAtPoint(new Point((rect.Left - maxMove.Move) / dim, rect.Center.Y / dim));
+                    canMove = CanMove((rect.Left - maxMove.Move) / dim, rect.Center.Y / dim, BombPass);
                     if (canMove)
                     {
                         if (top < bot)
