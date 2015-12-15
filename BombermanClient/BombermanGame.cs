@@ -57,8 +57,22 @@ namespace BombermanClient
             NetPeerConfiguration config = new NetPeerConfiguration("game");
             client = new NetClient(config);
             client.Configuration.ReceiveBufferSize = 500;
-
-            client.Start();
+            int i = 0;
+            while (i < 5)
+            {
+                try
+                {
+                    client.Start();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to connect");
+                    Thread.Sleep(200);
+                    i++;
+                    continue;
+                }
+                break;
+            }
 
             NetOutgoingMessage outmsg = client.CreateMessage();
             outmsg.Write("Login message");
