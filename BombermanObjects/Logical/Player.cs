@@ -74,7 +74,7 @@ namespace BombermanObjects.Logical
 
             move(MoveDirection, Speed);
 
-            Rectangle iRect = new Rectangle(position.X + 10, position.Y + 10, 44, 44);
+            Rectangle iRect = new Rectangle(position.X + 15, position.Y + 15, 34, 34);
             int cY = iRect.Center.Y / GameManager.BOX_WIDTH;
             int hY = iRect.Bottom / GameManager.BOX_WIDTH;
             int lY = iRect.Top / GameManager.BOX_WIDTH;

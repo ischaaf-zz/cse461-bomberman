@@ -51,7 +51,8 @@ namespace BombermanServer
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-
+            if (Manager.GameOver)
+                Exit();
             Server.Update(gameTime);
             Manager.Update(gameTime);
             //Console.WriteLine($"Lag: {gameTime.IsRunningSlowly}");

@@ -44,7 +44,14 @@ namespace BombermanObjects
 
         public List<Box> DestroyedBoxes { get; set; }
 
-        private bool gameOver;
+        public bool GameOver
+        {
+            get
+            {
+                return players.Length == 1 ? PlayersAlive < 1 : PlayersAlive <= 1;
+            }
+        }
+        public int PlayersAlive { get; private set; }
 
         public GameManager(int players)
         {
@@ -62,10 +69,8 @@ namespace BombermanObjects
             TotalBombPow = 20 - 10;
             TotalSpeed = 10 - 2;
             TotalBombPass = 2;
-            TotalPierce = 20;
-
-            gameOver = false;
-
+            TotalPierce = 4;
+            PlayersAlive = this.players.Length;
         }
 
         public Player AddPlayer(int number)
@@ -85,6 +90,7 @@ namespace BombermanObjects
         {
             if (players[number - 1] != null)
             {
+                PlayerNumbers.Remove(players[number - 1]);
                 players[number - 1] = null;
                 return true;
             } else
@@ -291,7 +297,7 @@ namespace BombermanObjects
         public virtual void Update(GameTime gametime)
         {
 
-            if (gameOver) { return; }
+            //if (GameOver) { return; }
 
             input.Update(gametime);
 
@@ -316,7 +322,7 @@ namespace BombermanObjects
                 }
             }
 
-            int playersAlive = 0;
+            PlayersAlive = 0;
             foreach (var p in players)
             {
                 if (p != null)
@@ -324,14 +330,9 @@ namespace BombermanObjects
                     p.Update(gametime, input.CurrentInput);
                     if (p.Lives > 0)
                     {
-                        playersAlive++;
+                        PlayersAlive++;
                     }
                 }
-            }
-
-            if (playersAlive == 1)
-            {
-                gameOver = true;
             }
 
             foreach (var b in bombs)

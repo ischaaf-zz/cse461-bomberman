@@ -38,6 +38,8 @@ namespace BombermanServer
             }
             framesSinceLastSend++;
             base.Update(gametime);
+            if (GameOver)
+                return;
             // broadcast gamestate
             if (framesSinceLastSend >= BROADCAST_INTERVAL)
             {
