@@ -122,7 +122,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y $(ProjectDir)$(OutDir)* $(SolutionDir)Game</PostBuildEvent>
+    <PostBuildEvent>mkdir $(SolutionDir)Game
+xcopy /y $(ProjectDir)$(OutDir)* $(SolutionDir)Game
+mkdir $(SolutionDir)Game\Content
+xcopy /y $(ProjectDir)Content\* $(SolutionDir)Game\Content</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
