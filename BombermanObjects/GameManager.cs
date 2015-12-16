@@ -300,7 +300,10 @@ namespace BombermanObjects
             if (GameOver) {
                 foreach (var p in players)
                 {
-                    p.MoveDirection = Player.Direction.Center;
+                    if (p != null)
+                    {
+                        p.MoveDirection = Player.Direction.Center;
+                    }
                 }
                 return;
             }
