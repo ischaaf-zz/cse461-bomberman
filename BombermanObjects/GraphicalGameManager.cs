@@ -49,9 +49,9 @@ namespace BombermanObjects
             return new DrawableExplosion(this, x, y, dim, startedAt, textures["explosion"]);
         }
 
-        public override Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim)
+        public override Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, bool super)
         {
-            return new DrawableBomb(this, x, y, placed, ttd, placedBy, dim, textures["bomb"]);
+            return new DrawableBomb(this, x, y, placed, ttd, placedBy, dim, textures["bomb"], super);
         }
 
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
@@ -85,7 +85,7 @@ namespace BombermanObjects
             base.UpdateBomb(gametime, b);
         }
 
-        public override bool PlaceExplosion(int x, int y, GameTime gametime)
+        public override bool PlaceExplosion(int x, int y, GameTime gametime, bool super)
         {
             Point p = new Point(x, y);
             if (bombs.IsItemAtPoint(p))
@@ -99,6 +99,7 @@ namespace BombermanObjects
                 {
                     // blow the box up
                     explosions.Add(new DrawableExplosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime, textures["explosion"]));
+                    return super;
                 }
                 return false;
             }

@@ -216,11 +216,12 @@ namespace BombermanClient
                 int placedBombs = inc.ReadByte();
                 int bombPower = inc.ReadByte();
                 bool bombPass = inc.ReadBoolean();
+                int pierce = inc.ReadByte();
                 long immune = inc.ReadVariableInt64() + TimeOffset.Ticks;
                 Player.Direction dir = (Player.Direction)inc.ReadByte();
                 int x = inc.ReadVariableInt32();
                 int y = inc.ReadVariableInt32();
-                manager.OverridePlayer(playerId, lives, speed, maxBombs, bombPower, bombPass, placedBombs, immune, dir, x, y);
+                manager.OverridePlayer(playerId, lives, speed, maxBombs, bombPower, bombPass, pierce, placedBombs, immune, dir, x, y);
             }
             inc.ReadByte();
             // read bomb info
@@ -229,8 +230,9 @@ namespace BombermanClient
                 int player = inc.ReadByte();
                 int x = inc.ReadByte();
                 int y = inc.ReadByte();
+                bool super = inc.ReadBoolean();
                 long detTime = inc.ReadVariableInt64();
-                manager.PlaceBombOrUpdate(player, x, y, detTime + TimeOffset.Ticks);
+                manager.PlaceBombOrUpdate(player, x, y, detTime + TimeOffset.Ticks, super);
             }
             inc.ReadByte();
 

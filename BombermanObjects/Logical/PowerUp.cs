@@ -56,7 +56,7 @@ namespace BombermanObjects.Logical
                     p.AutoBomb = true;
                     break;
                 case PowerUpType.Pierce:
-                    p.Pierce = true;
+                    p.Pierce += 3;
                     break;
                 case PowerUpType.BombPass:
                     p.BombPass = true;

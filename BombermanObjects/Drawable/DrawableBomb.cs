@@ -20,9 +20,15 @@ namespace BombermanObjects.Drawable
             texture = tex;
         }
 
+        public DrawableBomb(GameManager m, int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, Texture2D tex, bool super)
+            : base(m, x, y, placed, ttd, placedBy, dim, super)
+        {
+            texture = tex;
+        }
+
         public void Draw(SpriteBatch spritebatch, GameTime gameTime)
         {
-            spritebatch.Draw(texture, Position, Color.White);
+            spritebatch.Draw(texture, Position, super ? Color.Black : Color.White);
         }
     }
 }

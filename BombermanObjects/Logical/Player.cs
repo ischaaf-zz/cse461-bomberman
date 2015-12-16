@@ -34,7 +34,7 @@ namespace BombermanObjects.Logical
 
         public bool BombPass { get; set; }
 
-        public bool Pierce { get; set; }
+        public int Pierce { get; set; }
 
         public Direction MoveDirection { get; set; }
 
@@ -150,6 +150,12 @@ namespace BombermanObjects.Logical
             int y = position.Center.Y / position.Height;
             if (PlacedBombs < MaxBombs && !manager.bombs.IsItemAtPoint(new Point(x, y)) && !manager.explosions.IsItemAtPoint(new Point(x, y)))
             {
+                bool super = false;
+                if (Pierce > 0)
+                {
+                    super = true;
+                    Pierce--;
+                }
                 Bomb b = new Bomb(
                     manager,
                     x,
@@ -157,7 +163,8 @@ namespace BombermanObjects.Logical
                     gameTime.TotalGameTime,
                     3,
                     this,
-                    position.Width
+                    position.Width,
+                    super
                 );
                 manager.collider.RegisterStatic(b);
                 manager.bombs.Add(b);

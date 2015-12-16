@@ -68,6 +68,7 @@ namespace BombermanServer
                     outmsg.Write((byte)currPlayer.PlacedBombs);
                     outmsg.Write((byte)currPlayer.BombPower);
                     outmsg.Write(currPlayer.BombPass);
+                    outmsg.Write((byte)currPlayer.Pierce);
                     outmsg.WriteVariableInt64(currPlayer.ImmuneTill.Ticks);
                     outmsg.Write((byte)currPlayer.MoveDirection);
                     outmsg.WriteVariableInt32(currPlayer.Position.X);
@@ -81,6 +82,7 @@ namespace BombermanServer
                 outmsg.Write((byte)PlayerNumbers[bomb.placedBy]);
                 outmsg.Write((byte)bomb.CenterGrid.X);
                 outmsg.Write((byte)bomb.CenterGrid.Y);
+                outmsg.Write(bomb.super);
                 outmsg.WriteVariableInt64(bomb.DetonateTime.Ticks);
             }
             outmsg.Write((byte)0xff);

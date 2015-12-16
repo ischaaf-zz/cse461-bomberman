@@ -16,6 +16,7 @@ namespace BombermanObjects.Logical
         public TimeSpan placedAt;
         public TimeSpan detonateAt;
         public Player placedBy;
+        public bool super;
 
         public Bomb(GameManager m, int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim) : base(m)
         {
@@ -25,6 +26,12 @@ namespace BombermanObjects.Logical
             this.placedAt = placed;
             detonateAt = placedAt.Add(new TimeSpan(0, 0, ttd));
             this.placedBy = placedBy;
+            super = true;
+        }
+
+        public Bomb(GameManager m, int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, bool super) : this(m,x,y,placed, ttd,placedBy,dim)
+        {
+            this.super = super;
         }
 
         public TimeSpan DetonateTime

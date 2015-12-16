@@ -40,6 +40,7 @@ namespace BombermanObjects
         public int TotalBombPow { get; set; }
         public int TotalSpeed { get; set; }
         public int TotalBombPass { get; set; }
+        public int TotalPierce { get; set; }
 
         public List<Box> DestroyedBoxes { get; set; }
 
@@ -61,6 +62,7 @@ namespace BombermanObjects
             TotalBombPow = 20 - 10;
             TotalSpeed = 10 - 2;
             TotalBombPass = 2;
+            TotalPierce = 20;
 
             gameOver = false;
 
@@ -136,6 +138,11 @@ namespace BombermanObjects
                 boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.BombPass, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
                 index++;
             }
+            for (int i = 0; i < TotalPierce; i++)
+            {
+                boxes[index].PowerUp = CreatePowerUp(PowerUp.PowerUpType.Pierce, boxes[index].CenterGrid.X, boxes[index].CenterGrid.Y); ;
+                index++;
+            }
         }
 
         public virtual void InitializeBare()
@@ -181,7 +188,7 @@ namespace BombermanObjects
             return true;
         }
 
-        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, bool bp, int placedB, long immune, Player.Direction moveD, int x, int y)
+        public void OverridePlayer(int player, int lives, int speed, int maxB, int bPower, bool bp, int pierce, int placedB, long immune, Player.Direction moveD, int x, int y)
         {
             Player p = players[player];
             p.Speed = speed;
@@ -190,13 +197,14 @@ namespace BombermanObjects
             p.BombPower = bPower;
             p.BombPass = bp;
             p.PlacedBombs = placedB;
+            p.Pierce = pierce;
             p.ImmuneTill = new TimeSpan(immune);
             p.MoveDirection = moveD;
             p.position.X = x;
             p.position.Y = y;
         }
 
-        public void PlaceBombOrUpdate(int player, int x, int y, long detTime)
+        public void PlaceBombOrUpdate(int player, int x, int y, long detTime, bool super)
         {
             Player p = players[player];
             if (bombs.IsItemAtPoint(new Point(x, y)) || explosions.IsItemAtPoint(new Point(x, y)))
@@ -206,7 +214,7 @@ namespace BombermanObjects
             {
                 TimeSpan t = new TimeSpan(detTime).Subtract(new TimeSpan(0, 0, 3));
                 Console.WriteLine($"Bomb placed at: {t.ToString("g")}");
-                Bomb b = CreateBomb(x, y, t, 3, p, BOX_WIDTH);
+                Bomb b = CreateBomb(x, y, t, 3, p, BOX_WIDTH, super);
                 collider.RegisterStatic(b);
                 bombs.Add(b);
                 TimeSpan det = new TimeSpan(detTime);
@@ -273,9 +281,9 @@ namespace BombermanObjects
             return new Explosion(this, x, y, dim, startedAt);
         }
 
-        public virtual Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim)
+        public virtual Bomb CreateBomb(int x, int y, TimeSpan placed, int ttd, Player placedBy, int dim, bool super)
         {
-            return new Bomb(this, x, y, placed, ttd, placedBy, dim);
+            return new Bomb(this, x, y, placed, ttd, placedBy, dim, super);
         }
 
         #endregion
@@ -356,33 +364,33 @@ namespace BombermanObjects
             int loY = y - p;
             int hiY = y + p;
             // Negative X
-            PlaceExplosion(x, y, gametime);
+            PlaceExplosion(x, y, gametime, b.super);
             for (int i = x - 1; i >= loX; i--)
             {
-                if (!PlaceExplosion(i, y, gametime))
+                if (!PlaceExplosion(i, y, gametime, b.super))
                     break;
             }
             // Positive X
             for (int i = x + 1; i <= hiX; i++)
             {
-                if (!PlaceExplosion(i, y, gametime))
+                if (!PlaceExplosion(i, y, gametime, b.super))
                     break;
             }
             // Negative Y
             for (int i = y - 1; i >= loY; i--)
             {
-                if (!PlaceExplosion(x, i, gametime))
+                if (!PlaceExplosion(x, i, gametime, b.super))
                     break;
             }
             // Positive Y
             for (int i = y + 1; i <= hiY; i++)
             {
-                if (!PlaceExplosion(x, i, gametime))
+                if (!PlaceExplosion(x, i, gametime, b.super))
                     break;
             }
         }
 
-        public virtual bool PlaceExplosion(int x, int y, GameTime gametime)
+        public virtual bool PlaceExplosion(int x, int y, GameTime gametime, bool super)
         {
             Point p = new Point(x, y);
             if (bombs.IsItemAtPoint(p))
@@ -396,6 +404,7 @@ namespace BombermanObjects
                 if (item is Box)
                 {
                     explosions.Add(new Explosion(this, x, y, BOX_WIDTH, gametime.TotalGameTime));
+                    return super;
                 }
                 return false;
             }
