@@ -48,7 +48,7 @@ namespace BombermanObjects
         {
             get
             {
-                return false; // players.Length == 1 ? PlayersAlive < 1 : PlayersAlive <= 1;
+                return players.Length == 1 ? PlayersAlive < 1 : PlayersAlive <= 1;
             }
         }
         public int PlayersAlive { get; private set; }
@@ -297,7 +297,13 @@ namespace BombermanObjects
         public virtual void Update(GameTime gametime)
         {
 
-            //if (GameOver) { return; }
+            if (GameOver) {
+                foreach (var p in players)
+                {
+                    p.MoveDirection = Player.Direction.Center;
+                }
+                return;
+            }
 
             input.Update(gametime);
 

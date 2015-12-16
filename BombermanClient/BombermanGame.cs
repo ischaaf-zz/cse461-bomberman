@@ -94,7 +94,7 @@ namespace BombermanClient
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (gameStarted)
+            if (gameStarted && !manager.GameOver)
             {
                 input.Update(gameTime);
                 var current = input.CurrentInput;
@@ -114,13 +114,17 @@ namespace BombermanClient
                 }
                 if (current.PlaceBomb)
                 {
-                    // send Bomb
-                    //Console.WriteLine("Sending Bomb");
-                    NetOutgoingMessage bombMsg = client.CreateMessage();
-                    bombMsg.Write((byte)playerId);
-                    bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
-                    bombMsg.Write((byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT);
-                    client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                    Player p = manager.players[playerId - 1];
+                    if (p.PlacedBombs < p.MaxBombs)
+                    {
+                        // send Bomb
+                        //Console.WriteLine("Sending Bomb");
+                        NetOutgoingMessage bombMsg = client.CreateMessage();
+                        bombMsg.Write((byte)playerId);
+                        bombMsg.Write((byte)PacketTypeEnums.PacketType.EVENT);
+                        bombMsg.Write((byte)PacketTypeEnums.EventType.EVENT_BOMB_PLACEMENT);
+                        client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
+                    }
                 }
             }
             int messageCount;

@@ -44,7 +44,7 @@ namespace BombermanServer
             {
                 unassignedPlayerIds.Push(i + 1);
             }
-            server.Configuration.ConnectionTimeout = 5;
+            server.Configuration.ConnectionTimeout = 25;
         }
         
         public static void FillOutMsgHeader(NetOutgoingMessage outmsg, int sid, PacketTypeEnums.PacketType packetType)
