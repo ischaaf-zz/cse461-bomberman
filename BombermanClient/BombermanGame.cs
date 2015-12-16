@@ -123,9 +123,27 @@ namespace BombermanClient
                     client.SendMessage(bombMsg, serverConnection, NetDeliveryMethod.Unreliable, 0);
                 }
             }
-
+            int messageCount;
             NetIncomingMessage inc;
-            if ((inc = client.ReadMessage()) != null)
+            
+
+            if (!gameStarted)
+            {
+                inc = client.ReadMessage();
+                messageCount = inc == null ? 0 : 1;
+            } else
+            {
+                List<NetIncomingMessage> messages = new List<NetIncomingMessage>();
+                messageCount = client.ReadMessages(messages);
+
+                inc = messageCount == 0 ? null : messages[messages.Count - 1];
+            }
+
+            if (messageCount > 2)
+            {
+                Console.WriteLine("List size: " + messageCount);
+            }
+            if (messageCount > 0)
             {
                 switch (inc.MessageType)
                 {
@@ -182,6 +200,9 @@ namespace BombermanClient
                         }
 
                         //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
+                        break;
+                    case NetIncomingMessageType.StatusChanged:
+                        Console.WriteLine(inc);
                         break;
                     default:
                         Console.WriteLine("Default case in update");
