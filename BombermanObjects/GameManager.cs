@@ -43,6 +43,8 @@ namespace BombermanObjects
 
         public List<Box> DestroyedBoxes { get; set; }
 
+        private bool gameOver;
+
         public GameManager(int players)
         {
             int dim = GAME_SIZE * BOX_WIDTH;
@@ -59,6 +61,8 @@ namespace BombermanObjects
             TotalBombPow = 20 - 10;
             TotalSpeed = 10 - 2;
             TotalBombPass = 2;
+
+            gameOver = false;
 
         }
 
@@ -278,6 +282,9 @@ namespace BombermanObjects
 
         public virtual void Update(GameTime gametime)
         {
+
+            if (gameOver) { return; }
+
             input.Update(gametime);
 
             HashSet<AbstractGameObject> toRemove = new HashSet<AbstractGameObject>();
@@ -301,12 +308,22 @@ namespace BombermanObjects
                 }
             }
 
+            int playersAlive = 0;
             foreach (var p in players)
             {
                 if (p != null)
                 {
                     p.Update(gametime, input.CurrentInput);
+                    if (p.Lives > 0)
+                    {
+                        playersAlive++;
+                    }
                 }
+            }
+
+            if (playersAlive == 1)
+            {
+                gameOver = true;
             }
 
             foreach (var b in bombs)
