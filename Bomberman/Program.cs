@@ -28,6 +28,11 @@ namespace Bomberman
                 }
                 Console.Write("Number of Players: ");
                 int.TryParse(Console.ReadLine(), out players);
+                if (players < 1 || players > 4)
+                {
+                    Console.WriteLine("player range 1-4");
+                    return;
+                }
                 Host(port, players, out host);
             }
             if (host.Length == 0)
