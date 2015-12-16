@@ -15,7 +15,7 @@ namespace BombermanClient
 {
     class BombermanGame : Game
     {
-
+        public bool isConnected;
         protected GraphicsDeviceManager graphics;
         protected SpriteBatch spritebatch;
         protected GraphicalGameManager manager;
@@ -45,7 +45,7 @@ namespace BombermanClient
             graphics.PreferredBackBufferWidth = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;  // set this value to the desired width of your window
             graphics.PreferredBackBufferHeight = GameManager.BOX_WIDTH * GameManager.GAME_SIZE;   // set this value to the desired height of your window
             graphics.ApplyChanges();
-            
+            isConnected = true;
         }
 
         protected override void Initialize()
@@ -67,8 +67,9 @@ namespace BombermanClient
             serverConnection = client.Connect(hostIP, port, outmsg);
             Thread.Sleep(100);
 
+            Console.WriteLine(serverConnection.Status);
             waitForAssignment();
-
+            
         }
 
         protected override void LoadContent()
@@ -206,7 +207,13 @@ namespace BombermanClient
                         //Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
                         break;
                     case NetIncomingMessageType.StatusChanged:
-                        Console.WriteLine(inc);
+                        Console.WriteLine($"Status change packet, server status: {serverConnection.Status}");
+                        if (serverConnection.Status == NetConnectionStatus.Disconnected)
+                        {
+                            Console.WriteLine($"disconnected from server");
+                            isConnected = false;
+                            //Exit();
+                        }
                         break;
                     default:
                         Console.WriteLine("Default case in update");
@@ -327,7 +334,13 @@ namespace BombermanClient
                             awaitingAssignment = false;
                             break;
                         case NetIncomingMessageType.StatusChanged:
-                            Console.WriteLine("Extra packet");
+                            Console.WriteLine($"Status change packet, server status: {serverConnection.Status}");
+                            if (serverConnection.Status == NetConnectionStatus.Disconnected)
+                            {
+                                isConnected = false;
+                                Console.WriteLine($"failed to connect to server");
+                                Exit();
+                            }
                             break;
                         default:
                             Console.WriteLine($"Unknown Message: Type: {inc.MessageType} with data: {inc.ReadString()}");
