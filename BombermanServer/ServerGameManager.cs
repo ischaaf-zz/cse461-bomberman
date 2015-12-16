@@ -12,7 +12,7 @@ namespace BombermanServer
 {
     public class ServerGameManager : GameManager
     {
-        public static readonly int BROADCAST_INTERVAL = 1; // in frames
+        public static readonly int BROADCAST_INTERVAL = 2; // in frames
         private int framesSinceLastSend;
         public NetServer server;
         PlayerInfo[] playerInfoArr;
