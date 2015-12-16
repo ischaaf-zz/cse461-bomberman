@@ -48,7 +48,7 @@ namespace BombermanObjects
         {
             get
             {
-                return players.Length == 1 ? PlayersAlive < 1 : PlayersAlive <= 1;
+                return PlayerNumbers.Count == 1 ? PlayersAlive < 1 : PlayersAlive <= 1;
             }
         }
         public int PlayersAlive { get; private set; }

@@ -23,6 +23,7 @@ namespace BombermanClient
         protected int totalPlayers;
         LocalInput input = new LocalInput();
         NetConnection serverConnection;
+        Dictionary<string, Texture2D> textureMap;
 
         protected TimeSpan TimeOffset;
 
@@ -77,7 +78,7 @@ namespace BombermanClient
             base.LoadContent();
 
             spritebatch = new SpriteBatch(GraphicsDevice);
-            Dictionary<string, Texture2D> textureMap = new Dictionary<string, Texture2D>();
+            textureMap = new Dictionary<string, Texture2D>();
             textureMap["background"] = Content.Load<Texture2D>("background");
             textureMap["wall"] = Content.Load<Texture2D>("wall");
             textureMap["player"] = Content.Load<Texture2D>("player");
@@ -85,6 +86,9 @@ namespace BombermanClient
             textureMap["explosion"] = Content.Load<Texture2D>("explosion");
             textureMap["box"] = Content.Load<Texture2D>("box");
             textureMap["powerups"] = Content.Load<Texture2D>("powerups");
+            textureMap["victory"] = Content.Load<Texture2D>("victory");
+            textureMap["defeat"] = Content.Load<Texture2D>("defeat");
+            textureMap["disconnected"] = Content.Load<Texture2D>("disconnected");
             WaitFilter = new SolidColorTexture(GraphicsDevice, new Color(Color.Gray, 100));
             manager = new GraphicalGameManager(4, textureMap);
             manager.InitializeBare();
@@ -287,9 +291,23 @@ namespace BombermanClient
             spritebatch.Begin();
             manager.Draw(spritebatch, gameTime);
 
+            Texture2D filter = null;
             if (!gameStarted)
             {
-                spritebatch.Draw(WaitFilter, new Rectangle(0, 0, GameManager.BOX_WIDTH * GameManager.GAME_SIZE, GameManager.BOX_WIDTH * GameManager.GAME_SIZE), Color.White);
+                filter = WaitFilter;
+            } else if (manager.GameOver && manager.players[playerId - 1].Lives > 0)
+            {
+                filter = textureMap["victory"];
+            } else if (manager.players[playerId - 1].Lives <= 0)
+            {
+                filter = textureMap["defeat"];
+            } else if (!isConnected)
+            {
+                filter = textureMap["disconnected"];
+            }
+            if (filter != null)
+            {
+                spritebatch.Draw(filter, new Rectangle(0, 0, GameManager.BOX_WIDTH * GameManager.GAME_SIZE, GameManager.BOX_WIDTH * GameManager.GAME_SIZE), Color.White);
             }
 
             spritebatch.End();
